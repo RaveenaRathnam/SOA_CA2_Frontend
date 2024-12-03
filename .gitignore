@@ -3,6 +3,47 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# Blazor WebAssembly build artifacts
+wwwroot/
+bin/
+obj/
+
+# Node.js dependencies (if used)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE-specific settings
+.vscode/
+.idea/
+
+# User-specific files
+*.user
+*.userosscache
+
+# Logs and temporary files
+*.log
+*.tmp
+
+# Generated files
+*.pdb
+*.cache
+*.dll
+
+# Publish files
+publish/
+*.publish.xml
+*.pubxml
+
+# NuGet-related
+*.nupkg
+project.lock.json
+
+# Misc
+.env
+4. Commit 
+
 # User-specific files
 *.rsuser
 *.suo
