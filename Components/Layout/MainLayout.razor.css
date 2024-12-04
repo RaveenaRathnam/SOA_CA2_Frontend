@@ -7,6 +7,151 @@
 main {
     flex: 1;
 }
+body {
+    font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+h3 {
+    font-family: sans-serif;
+    font-size: 2.3rem;
+    font-weight: 300;
+    text-align: center;
+}
+
+a {
+    text-decoration: none;
+    color: var(--dark);
+    font-weight: 400;
+    transition: 0.3s ease-in;
+    border-bottom: 1px solid transparent;
+    margin-bottom: 0.5rem;
+    display: inline-flex;
+}
+
+    a:hover {
+        border-bottom: 1px solid var(--dark);
+    }
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+button {
+    appearance: none;
+    border: 0;
+    background: transparent;
+}
+ 
+.footer_inner {
+    backdrop-filter: blur(50px);
+    border: 0.1px solid rgba(233, 232, 232, 0.208);
+    border-radius: 5px;
+    padding: 2rem;
+    margin: 1rem 0;
+    color: black;
+}
+
+.footer {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 100vh;
+    background-color:white;
+}
+
+.container {
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 1rem;
+    background-color: #FBEAE8;
+}
+
+form {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: min(100%, 400px);
+    border-bottom: 1px solid var(--dark);
+}
+.flex {
+    display: flex;
+    gap: 1.5rem;
+    padding: 0;
+    margin: 1rem 0 0 0;
+    list-style: none;
+}
+.flex li svg {
+    fill: black; /* Set icon color to black */
+    transition: transform 0.3s ease-in-out, fill 0.3s ease-in-out;
+    cursor: pointer;
+}
+input {
+    padding: 0.75rem 0;
+    border: none;
+    background: none;
+    font-weight: 500;
+    transition: border 0.3s cubic-bezier(0.215, 0.61, 0.355, 1);
+    border-radius: 0;
+    width: 100%;
+    font-size: 1.05rem;
+    font-weight: bolder;
+}
+
+    input:focus {
+        outline: none;
+    }
+
+    input::placeholder {
+        color: var(--dark);
+    }
+
+@media (min-width: 675px) {
+    .layout {
+        display: flex;
+        flex-wrap: nowrap;
+        column-gap: 2rem;
+    }
+
+    .w-50 {
+        width: 50%;
+    }
+
+    .w-25 {
+        width: 25%;
+    }
+}
+
+form {
+    position: relative;
+}
+
+svg {
+    margin: 0.5rem;
+    fill: white;
+}
+
+.c-2 {
+    margin-top: 3.5rem;
+}
+
+.footer_copyright {
+    color: var(--light);
+}
+
+.page {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
 
 .sidebar {
     background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
@@ -27,27 +172,27 @@ main {
         text-decoration: none;
     }
 
-    .top-row ::deep a:hover, .top-row ::deep .btn-link:hover {
-        text-decoration: underline;
-    }
+        .top-row ::deep a:hover, .top-row ::deep .btn-link:hover {
+            text-decoration: underline;
+        }
 
-    .top-row ::deep a:first-child {
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
+        .top-row ::deep a:first-child {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
 
 @media (max-width: 640.98px) {
     .top-row {
         justify-content: space-between;
     }
 
-    .top-row ::deep a, .top-row ::deep .btn-link {
-        margin-left: 0;
-    }
+        .top-row ::deep a, .top-row ::deep .btn-link {
+            margin-left: 0;
+        }
 }
 
 @media (min-width: 641px) {
-     
+   
 
     .sidebar {
         width: 250px;
@@ -62,16 +207,11 @@ main {
         z-index: 1;
     }
 
-    .top-row.auth ::deep a:first-child {
-        flex: 1;
-        text-align: right;
-        width: 0;
-    }
-
-    .top-row, article {
-        padding-left: 2rem !important;
-        padding-right: 1.5rem !important;
-    }
+        .top-row.auth ::deep a:first-child {
+            flex: 1;
+            text-align: right;
+            width: 0;
+        }
 }
 
 #blazor-error-ui {
