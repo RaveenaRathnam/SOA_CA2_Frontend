@@ -42,7 +42,7 @@
 @if (selectedProduct != null)
 {
     <div class="modal-overlay" @onclick="CloseQuickView">
-        <div class="modal-content" @onclick:stopPropagation>
+        <div class="modal-content" @onclick:stopPropagation="true">
             <button class="close-btn" @onclick="CloseQuickView">×</button>
             <div class="modal-body">
                 <div class="modal-image">
