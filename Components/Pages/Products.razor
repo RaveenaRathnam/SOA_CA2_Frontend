@@ -1,5 +1,91 @@
-﻿<h3>Products</h3>
+﻿@using SOA_CA2_Frontend.Services;
+@inject ApiService ApiService;
+@using SOA_CA2_Frontend.Models;
+
+<link href="/css/Products.css" rel="stylesheet" />
+
+<div class="products-container">
+    @if (products.Count == 0)
+    {
+        <p>Loading products...</p>
+    }
+    else
+    {
+        foreach (var product in products)
+        {
+            <div class="product-card">
+                <div class="product-image-container">
+                    <img src="@product.imageUrl" alt="@product.product_Name" class="product-image" />
+                    <div class="overlay-icons">
+                        @if (ApiService.IsLoggedIn)
+                        {
+                            <button class="icon-btn" @onclick="() => AddToCart(product)">
+                                🛒
+                            </button>
+                        }
+                        <button class="icon-btn" @onclick="() => OpenQuickView(product)">
+                            👁️
+                        </button>
+                    </div>
+                </div>
+                <div class="product-details">
+                    <h3>@product.product_Name</h3>
+                    <p class="price">$@product.price</p>
+                    <span class="product-category">@product.categoryName</span>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+<!-- Quick View Modal -->
+@if (selectedProduct != null)
+{
+    <div class="modal-overlay" @onclick="CloseQuickView">
+        <div class="modal-content" @onclick:stopPropagation>
+            <button class="close-btn" @onclick="CloseQuickView">×</button>
+            <div class="modal-body">
+                <div class="modal-image">
+                    <img src="@selectedProduct.imageUrl" alt="@selectedProduct.product_Name"/>
+                </div>
+                <div class="modal-details">
+                    <h3>@selectedProduct.product_Name</h3>
+                    <p class="price">$@selectedProduct.price</p>
+                    <span class="product-category">@selectedProduct.categoryName</span>
+                    <p>@selectedProduct.description</p>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
 @code {
+    private List<ProductModel> products = new();
+    private ProductModel selectedProduct = null;
 
+    protected override async Task OnInitializedAsync()
+    {
+        products = await ApiService.GetProductsAsync();
+
+        foreach (var product in products)
+        {
+            product.categoryName = await ApiService.GetCategoryNameByIdAsync(product.category_Id);
+        }
+    }
+
+    private void AddToCart(ProductModel product)
+    {
+        // Logic to add product to cart
+         
+    }
+
+    private void OpenQuickView(ProductModel product)
+    {
+        selectedProduct = product;
+    }
+
+    private void CloseQuickView()
+    {
+        selectedProduct = null;
+    }
 }

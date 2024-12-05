@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using SOA_CA2_Frontend.Services
+@using SOA_CA2_Frontend.Components.Pages;
 
 
 <link href="/css/Index.css" rel="stylesheet" />
@@ -24,6 +25,7 @@
         </div>
     </div>
 </div>
+<Products />
 
 @code {
     [Inject] private ApiService ApiService { get; set; }
