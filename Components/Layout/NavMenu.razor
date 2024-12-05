@@ -20,18 +20,23 @@
         <a href="/" class="logo">Urban<span style="color:#0398C7;">Cart</span></a>
     </div>
     <div class="navbar-right">
+        <nav>
+            <ul class="navbar-links">
         @if (ApiService.IsLoggedIn)
         {
-            <a href="/profile" class="login">Profile</a>
-            <a @onclick="HandleLogout" class="logout">Log Out</a>
+                    <li> <a href="/profile" class="login">PROFILE</a></li>
+                    <li><a @onclick="HandleLogout" class="logout">LOG OUT</a></li>
         }
         else
         {
-            <a href="/login" class="login">Log In</a>
+                    <li>  <a href="/login" class="login">LOG IN</a></li>
         }
-        <a href="/cart" class="icon cart">
+        <li><a href="/cart" class="icon cart">
             🛒<span class="cart-count">0</span>
-        </a>
+                    </a>
+                </li>
+            </ul>
+        </nav>
     </div>
 </div>
 
