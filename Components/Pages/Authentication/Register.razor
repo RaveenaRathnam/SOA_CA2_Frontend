@@ -1,5 +1,51 @@
-﻿<h3>Register</h3>
+﻿@page "/signup"
+
+<link href="/css/Form.css" rel="stylesheet" />
+
+
+<div class="wrapper" style="background-color:#FBEAE8;">
+	<div class="inner">
+		<form action="">
+			<h3>Registration Form</h3>
+			<div class="form-group">
+				<div class="form-wrapper">
+					<label for="">First Name</label>
+					<input type="text" class="form-control">
+				</div>
+				<div class="form-wrapper">
+					<label for="">Last Name</label>
+					<input type="text" class="form-control">
+				</div>
+			</div>
+			<div class="form-wrapper">
+				<label for="">Email</label>
+				<input type="text" class="form-control">
+			</div>
+			<div class="form-wrapper">
+				<label for="">Password</label>
+				<input type="password" class="form-control">
+			</div>
+			<div class="form-wrapper">
+				<label for="">Confirm Password</label>
+				<input type="password" class="form-control">
+			</div>
+			<button>Register Now</button>
+		</form>
+		<p>
+			Already have an account? <a href="/login">Log in here</a>.
+		</p>
+	</div>
+</div>
+
 
 @code {
+    private string firstName = string.Empty;
+    private string lastName = string.Empty;
+    private string email = string.Empty;
+    private string password = string.Empty;
 
+    private async Task HandleSignup()
+    {
+        // Call backend API for signup (to be added later)
+    }
 }
