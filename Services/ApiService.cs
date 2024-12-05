@@ -117,6 +117,26 @@
 
             return new List<ProductModel>(); // Return empty list on failure
         }
+
+        public async Task<string> GetCategoryNameByIdAsync(int categoryId)
+        {
+            var response = await _httpClient.GetAsync($"{_apiBaseUrl}/Category/{categoryId}");
+            if (response.IsSuccessStatusCode)
+            {
+                var responseData = await response.Content.ReadAsStringAsync();
+                System.Console.WriteLine(responseData);
+
+                // Deserialize into the CategoryModel
+                var deserializedData = System.Text.Json.JsonSerializer.Deserialize<CategoryModel>(responseData);
+
+                // Return the CategoryName property
+                return deserializedData?.categoryName ?? "Unknown";
+            }
+
+            // Default if the category name can't be fetched
+            return "Unknown";
+        }
+
     }
 
 }
