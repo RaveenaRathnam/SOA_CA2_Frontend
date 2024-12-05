@@ -1,4 +1,5 @@
 using SOA_CA2_Frontend.Components;
+using SOA_CA2_Frontend.Services;
 
 namespace SOA_CA2_Frontend
 {
@@ -7,10 +8,14 @@ namespace SOA_CA2_Frontend
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            builder.Services.AddHttpClient();
 
             // Add services to the container.
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
+
+            builder.Services.AddScoped<ApiService>();
+
 
             var app = builder.Build();
 
