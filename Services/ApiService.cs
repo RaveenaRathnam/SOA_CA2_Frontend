@@ -14,6 +14,7 @@
         public bool IsLoggedIn { get; private set; } = false;
         public string SuccessMessage { get; set; } = string.Empty;
         public string UserToken { get; private set; } = string.Empty;
+        public string ApiKey { get; private set; } = string.Empty;
 
         public event Action? OnChange;
 
@@ -33,7 +34,6 @@
                 var responseData = await response.Content.ReadAsStringAsync();
                 var deserializedData = System.Text.Json.JsonSerializer.Deserialize<LoginModel>(responseData);
                 System.Console.WriteLine(deserializedData.jwtToken);
-                System.Console.WriteLine(deserializedData.refreshToken);
                 UserToken = deserializedData?.jwtToken ?? string.Empty; ;
                 IsLoggedIn = true;
                 System.Console.WriteLine(IsLoggedIn);
@@ -81,6 +81,7 @@
                 var deserielizedData = System.Text.Json.JsonSerializer.Deserialize<RegisterModel>(responseData);
                 System.Console.WriteLine(deserielizedData.apiKey);
                 SuccessMessage = "Registration successful! You can now log in.";
+                ApiKey = deserielizedData?.apiKey ?? string.Empty;
                 NotifyStateChanged();
                 return true;
             }
@@ -88,6 +89,33 @@
             SuccessMessage = string.Empty;  
             NotifyStateChanged();
             return false;
+        }
+
+        public async Task<List<ProductModel>> GetProductsAsync()
+        {
+            var response = await _httpClient.GetAsync($"{_apiBaseUrl}/Product");
+            try
+            {
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseData = await response.Content.ReadAsStringAsync();
+                    System.Console.WriteLine(responseData);
+                    var deserielizedData = System.Text.Json.JsonSerializer.Deserialize<List<ProductModel>>(responseData);
+                    System.Console.WriteLine(deserielizedData);
+                    return deserielizedData;
+                }
+                else
+                {
+                    System.Console.WriteLine(response);
+                }
+            }
+            catch (Exception error)
+            {
+                System.Console.WriteLine(error);
+            }
+            
+
+            return new List<ProductModel>(); // Return empty list on failure
         }
     }
 
