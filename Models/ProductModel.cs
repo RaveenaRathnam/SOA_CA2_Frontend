@@ -11,6 +11,7 @@
         public string description { get; set; }
         public int gender { get; set; }
         public string imageUrl { get; set; }
+        public string categoryName { get; set; }
     }
 
 }
