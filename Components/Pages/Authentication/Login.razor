@@ -1,5 +1,36 @@
-﻿<h3>Login</h3>
+﻿@page "/login"
+
+<link href="/css/Form.css" rel="stylesheet" />
+
+<div class="wrapper" style="background-color:#FBEAE8;">
+    <div class="inner">
+        <form @onsubmit="HandleLogin">
+            <h3>Login</h3>
+            <div class="form-wrapper">
+                <label for="email">Email</label>
+                <input type="text" class="form-control" id="email" @bind="email" />
+            </div>
+            <div class="form-wrapper">
+                <label for="password">Password</label>
+                <input type="password" class="form-control" id="password" @bind="password" />
+            </div>
+            <button type="submit">Login</button>
+            <div>
+                Don't have an account? <a href="/signup">Sign up here</a>.
+            </div>
+        </form>
+       
+    </div>
+    
+</div>
 
 @code {
+    private string email = string.Empty;
+    private string password = string.Empty;
 
+    private async Task HandleLogin()
+    {
+        // Add API call to your backend login endpoint here
+       
+    }
 }
