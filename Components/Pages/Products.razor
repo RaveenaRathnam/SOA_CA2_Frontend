@@ -14,11 +14,24 @@
         foreach (var product in products)
         {
             <div class="product-card">
-                <img src="@product.imageUrl" alt="@product.product_Name" />
-                <h3>@product.product_Name</h3>
-                <p>@product.description</p>
-                <p class="price">$@product.price</p>
-                <button class="add-to-cart-btn">Add to Cart</button>
+                <div class="product-image-container">
+                    <img src="@product.imageUrl" alt="@product.product_Name" class="product-image" />
+                    <div class="overlay-icons">
+                        @if (ApiService.IsLoggedIn)
+                        {
+                            <button class="icon-btn" @onclick="() => AddToCart(product)">
+                                🛒
+                            </button>
+                        }
+                        <button class="icon-btn" @onclick="() => QuickView(product)">
+                            👁️
+                        </button>
+                    </div>
+                </div>
+                <div class="product-details">
+                    <h3>@product.product_Name</h3>
+                    <p class="price">$@product.price</p>
+                </div>
             </div>
         }
     }
@@ -30,5 +43,15 @@
     protected override async Task OnInitializedAsync()
     {
         products = await ApiService.GetProductsAsync();
+    }
+
+    private void AddToCart(ProductModel product)
+    {
+        // Logic to add product to cart
+    }
+
+    private void QuickView(ProductModel product)
+    {
+        // Logic to display product details in a modal/quick view
     }
 }
