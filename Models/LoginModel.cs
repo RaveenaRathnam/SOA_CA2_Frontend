@@ -4,5 +4,9 @@
     {
         public string jwtToken { get; set; }
         public string refreshToken { get; set; }
+        public string apiKey { get; set; }
+
+        public int userId { get; set; }
     }
+
 }

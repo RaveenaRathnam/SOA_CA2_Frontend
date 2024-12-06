@@ -115,9 +115,30 @@
         filteredProducts = new List<ProductModel>(products);
     }
 
-    private void AddToCart(ProductModel product)
+    private async Task AddToCart(ProductModel product)
     {
-        // Logic to add product to cart
+        // Prepare the cart item model
+        var cartItem = new CartItemModel
+            {
+                cartItem_Id = 1,
+                cart_Id = 2,
+                product_Id = product.product_Id,
+                quantity = 1
+            };
+
+        // Call the API to add the item to the cart
+        var success = await ApiService.AddToCartAsync(cartItem);
+
+        if (success)
+        {
+            // Show a success message
+            Console.WriteLine($"Added {product.product_Name} to cart.");
+        }
+        else
+        {
+            // Show an error message
+            Console.WriteLine($"Failed to add {product.product_Name} to cart.");
+        }
     }
 
     private void OpenQuickView(ProductModel product)

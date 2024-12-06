@@ -4,6 +4,7 @@
     using System.Net.Http.Json;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Configuration;
+    using SOA_CA2_Frontend.Components.Pages;
     using SOA_CA2_Frontend.Models;
 
     public class ApiService
@@ -14,7 +15,9 @@
         public bool IsLoggedIn { get; private set; } = false;
         public string SuccessMessage { get; set; } = string.Empty;
         public string UserToken { get; private set; } = string.Empty;
-        public string ApiKey { get; private set; } = string.Empty;
+        public string UserApiKey { get; private set; } = string.Empty;
+
+        public int userId { get; private set; } = 0 ;
 
         public event Action? OnChange;
 
@@ -34,7 +37,11 @@
                 var responseData = await response.Content.ReadAsStringAsync();
                 var deserializedData = System.Text.Json.JsonSerializer.Deserialize<LoginModel>(responseData);
                 System.Console.WriteLine(deserializedData.jwtToken);
-                UserToken = deserializedData?.jwtToken ?? string.Empty; ;
+                System.Console.WriteLine(deserializedData.apiKey);
+                System.Console.WriteLine(deserializedData.userId);
+                UserToken = deserializedData?.jwtToken ?? string.Empty; 
+                UserApiKey= deserializedData?.apiKey ?? string.Empty;
+                userId = deserializedData.userId;
                 IsLoggedIn = true;
                 System.Console.WriteLine(IsLoggedIn);
                 SuccessMessage = "Login successful! Welcome back!";
@@ -81,7 +88,6 @@
                 var deserielizedData = System.Text.Json.JsonSerializer.Deserialize<RegisterModel>(responseData);
                 System.Console.WriteLine(deserielizedData.apiKey);
                 SuccessMessage = "Registration successful! You can now log in.";
-                ApiKey = deserielizedData?.apiKey ?? string.Empty;
                 NotifyStateChanged();
                 return true;
             }
@@ -151,6 +157,176 @@
             return new List<CategoryModel>(); // Return empty list if the API call fails
         }
 
+        public async Task<bool> AddToCartAsync(CartItemModel cartItem)
+        {
+            try
+            {
+                // Clear existing headers to avoid duplicates or conflicts
+                _httpClient.DefaultRequestHeaders.Clear();
+
+                // Add required headers
+                _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Apikey", UserApiKey);
+
+                // Ensure userId is valid and non-null
+                if (userId==0)
+                {
+                    Console.WriteLine("Error: User ID is null or empty.");
+                    return false;
+                }
+
+                // Build the full endpoint URL
+                string requestUrl = $"{_apiBaseUrl}/Cart/{userId}";
+
+                // Log request details for debugging
+                Console.WriteLine($"Sending POST request to: {requestUrl}");
+                Console.WriteLine($"With API Key: {UserApiKey}");
+
+                // Make the POST request with the cart item
+                var response = await _httpClient.PostAsJsonAsync(requestUrl, cartItem);
+
+                // Handle the response
+                if (response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("Item added to cart successfully.");
+                    return true;
+                }
+                else
+                {
+                    // Log error response for further analysis
+                    string responseContent = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine("Failed to add item to cart.");
+                    Console.WriteLine($"StatusCode: {response.StatusCode}, Reason: {response.ReasonPhrase}");
+                    Console.WriteLine($"Response Content: {responseContent}");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log unexpected exceptions
+                Console.WriteLine($"An error occurred: {ex.Message}");
+                return false;
+            }
+        }
+        public async Task<ProductModel> GetProductByIdAsync(int productId)
+        {
+            try
+            {
+                // Build the endpoint URL
+                string requestUrl = $"{_apiBaseUrl}/Product/{productId}";
+
+                // Make the GET request
+                var response = await _httpClient.GetAsync(requestUrl);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return await response.Content.ReadFromJsonAsync<ProductModel>();
+                }
+                else
+                {
+                    Console.WriteLine($"Failed to fetch product details for product ID: {productId}");
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while fetching product details: {ex.Message}");
+                return null;
+            }
+        }
+
+        public async Task<List<CartItemModel>> GetCartItemsAsync()
+        {
+             
+                // Clear existing headers to avoid duplicates or conflicts
+                _httpClient.DefaultRequestHeaders.Clear();
+                _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Apikey", UserApiKey);
+
+                // Build the correct endpoint URL
+                string requestUrl = $"{_apiBaseUrl}/Cart/{userId}";
+
+                // Make the GET request to retrieve cart items
+                var response = await _httpClient.GetAsync(requestUrl);
+            try
+            {
+                if (response.IsSuccessStatusCode)
+                {
+                    var cart = await response.Content.ReadFromJsonAsync<CartModel>();
+                    return cart?.items ?? new List<CartItemModel>();
+                }
+                else
+                {
+                    Console.WriteLine($"Failed to fetch cart items. StatusCode: {response.StatusCode}, Reason: {response.ReasonPhrase}");
+                    return new List<CartItemModel>();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while fetching cart items: {ex.Message}");
+                return new List<CartItemModel>();
+            }
+
+
+            return new List<CartItemModel>(); // Return empty list on failure
+
+        }
+        public async Task<bool> RemoveFromCartAsync(int userId, int productId)
+        {
+            try
+            {
+                // Clear existing headers to avoid duplicates or conflicts
+                _httpClient.DefaultRequestHeaders.Clear();
+                _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Apikey", UserApiKey);
+
+                // Build the URL for deleting a specific product from the cart
+                string requestUrl = $"{_apiBaseUrl}/Cart/{userId}/product/{productId}";
+
+                // Make the DELETE request
+                var response = await _httpClient.DeleteAsync(requestUrl);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("Item removed from cart successfully.");
+                    return true;
+                }
+                else
+                {
+                    Console.WriteLine($"Failed to remove item from cart. StatusCode: {response.StatusCode}");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while removing item from cart: {ex.Message}");
+                return false;
+            }
+        }
+        public async Task<bool> ClearCartAsync(int userId)
+        {
+            try
+            {
+                // Build the URL for clearing the entire cart
+                string requestUrl = $"{_apiBaseUrl}/Cart/{userId}";
+
+                // Make the DELETE request
+                var response = await _httpClient.DeleteAsync(requestUrl);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("Cart cleared successfully.");
+                    return true;
+                }
+                else
+                {
+                    Console.WriteLine($"Failed to clear cart. StatusCode: {response.StatusCode}");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while clearing the cart: {ex.Message}");
+                return false;
+            }
+        }
 
     }
 
