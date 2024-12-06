@@ -24,6 +24,11 @@
             <ul class="navbar-links">
         @if (ApiService.IsLoggedIn)
         {
+                    <li>
+                        <a href="/cart" class="icon cart">
+                            🛒
+                        </a>
+                    </li>
                     <li> <a href="/profile" class="login">PROFILE</a></li>
                     <li><a @onclick="HandleLogout" class="logout">LOG OUT</a></li>
         }
@@ -31,10 +36,7 @@
         {
                     <li>  <a href="/login" class="login">LOG IN</a></li>
         }
-        <li><a href="/cart" class="icon cart">
-            🛒<span class="cart-count">0</span>
-                    </a>
-                </li>
+        
             </ul>
         </nav>
     </div>
