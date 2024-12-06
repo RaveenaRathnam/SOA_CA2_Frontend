@@ -65,7 +65,6 @@
 
 .clear-btn {
     margin: 2rem auto;
-    display: block;
     background-color: #f39c12; /* Orange color for clear button to attract attention */
     color: #fff;
     border: none;
@@ -78,6 +77,22 @@
     .clear-btn:hover {
         background-color: #e67e22; /* Darker orange on hover */
     }
+
+.checkout-btn {
+    margin: 2rem auto;
+    background-color: darkgreen; /* Orange color for clear button to attract attention */
+    color: #fff;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+    .checkout-btn:hover {
+        background-color: forestgreen; /* Darker orange on hover */
+    }
+
 
 h2 {
     text-align: center;
@@ -103,11 +118,6 @@ button {
     font-size: 1rem;
 }
 
-@media (min-width: 768px) {
-    
-   
-
-    .clear-btn {
-        margin: 2rem auto 0;
-    }
+.cart-container .cart-actions{
+    display:flex;
 }

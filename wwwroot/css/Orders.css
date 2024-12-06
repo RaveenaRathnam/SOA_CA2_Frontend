@@ -1,0 +1,106 @@
+﻿/* Orders Page Styling */
+
+/* Container for the orders section */
+.orders-container {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 1.5rem;
+    background-color: #f7f7f7; /* Light background for container */
+    border-radius: 10px;
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Individual order card */
+.order {
+    padding: 1.5rem;
+    background-color: #ffffff; /* White background for each order */
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 1.5rem;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+    .order:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Order headings */
+    .order h3 {
+        margin-top: 0;
+        font-size: 1.4rem;
+        color: #34495e; /* Dark blue for headings */
+    }
+
+    .order h4 {
+        font-size: 1.2rem;
+        margin-top: 1rem;
+        color: #2c3e50; /* Dark grey */
+    }
+
+    /* Order details */
+    .order p {
+        margin: 0.5rem 0;
+        font-size: 1rem;
+        color: #555555; /* Dark grey text for better readability */
+    }
+
+    /* Order items list */
+    .order ul {
+        list-style-type: none;
+        padding-left: 0;
+        margin-top: 1rem;
+    }
+
+        .order ul li {
+            padding: 0.5rem;
+            background-color: #eaf1f8; /* Light blue background for each item */
+            margin-bottom: 0.5rem;
+            border-radius: 5px;
+            color: #2c3e50; /* Dark grey for item text */
+        }
+
+/* Status label styling */
+.order-status {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+    .order-status.pending {
+        background-color: #f39c12; /* Orange for pending status */
+    }
+
+    .order-status.shipped {
+        background-color: #3498db; /* Blue for shipped status */
+    }
+
+    .order-status.delivered {
+        background-color: #2ecc71; /* Green for delivered status */
+    }
+
+    .order-status.cancelled {
+        background-color: #e74c3c; /* Red for cancelled status */
+    }
+
+/* Responsive styling for smaller screens */
+@media (max-width: 768px) {
+    .orders-container {
+        padding: 1rem;
+    }
+
+    .order {
+        padding: 1rem;
+    }
+
+        .order h3, .order h4 {
+            font-size: 1.1rem;
+        }
+
+        .order p, .order ul li {
+            font-size: 0.95rem;
+        }
+}

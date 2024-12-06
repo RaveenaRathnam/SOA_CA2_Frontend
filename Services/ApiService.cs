@@ -416,6 +416,59 @@
             }
         }
 
+        public async Task<List<OrderModel>> GetOrdersByUserIdAsync()
+        {
+            try
+            {
+                // Clear existing headers to avoid duplicates or conflicts
+                _httpClient.DefaultRequestHeaders.Clear();
+                _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Apikey", UserApiKey);
+                string requestUrl = $"{_apiBaseUrl}/Order/user/{userId}";
+                var response = await _httpClient.GetAsync(requestUrl);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return await response.Content.ReadFromJsonAsync<List<OrderModel>>();
+                }
+                else
+                {
+                    Console.WriteLine($"Failed to fetch orders. StatusCode: {response.StatusCode}");
+                    return new List<OrderModel>();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while fetching orders: {ex.Message}");
+                return new List<OrderModel>();
+            }
+        }
+        public async Task<bool> CreateOrderAsync(OrderModel order)
+        {
+            try
+            {
+                // Clear existing headers to avoid duplicates or conflicts
+                _httpClient.DefaultRequestHeaders.Clear();
+                _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Apikey", UserApiKey);
+                string requestUrl = $"{_apiBaseUrl}/Order";
+                var response = await _httpClient.PostAsJsonAsync(requestUrl, order);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("Order created successfully.");
+                    return true;
+                }
+                else
+                {
+                    Console.WriteLine($"Failed to create order. StatusCode: {response.StatusCode}");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while creating the order: {ex.Message}");
+                return false;
+            }
+        }
 
     }
 
