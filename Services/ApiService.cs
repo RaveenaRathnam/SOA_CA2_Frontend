@@ -137,6 +137,21 @@
             return "Unknown";
         }
 
+        public async Task<List<CategoryModel>> GetCategoriesAsync()
+        {
+            var response = await _httpClient.GetAsync($"{_apiBaseUrl}/Category");
+            if (response.IsSuccessStatusCode)
+            {
+                var responseData = await response.Content.ReadAsStringAsync();
+                System.Console.WriteLine(responseData);
+                var deserielizedData = System.Text.Json.JsonSerializer.Deserialize<List<CategoryModel>>(responseData);
+                System.Console.WriteLine(deserielizedData);
+                return deserielizedData;
+            }
+            return new List<CategoryModel>(); // Return empty list if the API call fails
+        }
+
+
     }
 
 }
