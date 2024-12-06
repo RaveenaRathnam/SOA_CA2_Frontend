@@ -1,5 +1,6 @@
 ﻿@page "/cart"
 @inject ApiService ApiService
+@inject NavigationManager NavigationManager
 @using SOA_CA2_Frontend.Models
 @using SOA_CA2_Frontend.Services
 
@@ -28,7 +29,10 @@ else
                 <button class="remove-btn" @onclick="() => RemoveItem(item.product_Id)">Remove</button>
             </div>
         }
-        <button class="clear-btn" @onclick="ClearCart">Clear Cart</button>
+        <div class="cart-actions" style="display:flex;">
+            <button class="clear-btn" @onclick="ClearCart">Clear Cart</button>
+            <button class="checkout-btn" @onclick="PlaceOrder">Checkout</button>
+        </div>
     </div>
    
 }
@@ -90,5 +94,41 @@ else
             Console.WriteLine("Failed to clear cart.");
         }
     }
+    private async Task PlaceOrder()
+    {
+        // Get user ID from the ApiService
+        int currentUserId = ApiService.userId;
+
+        // Prepare the order model
+        var order = new OrderModel
+            {
+                user_Id = currentUserId, // Use userId from the ApiService
+                order_Date = DateTime.Now,
+                total_Amount = cartItems.Sum(item => item.price * item.quantity),
+                status = 1, // Assuming status 1 means "Pending"
+                createdAt = DateTime.Now,
+                orderItems = cartItems.Select(item => new OrderItemModel
+                {
+                    product_Id = item.product_Id,
+                    quantity = item.quantity,
+                    price = item.price
+                }).ToList()
+            };
+
+        // Call the API to create an order
+        bool success = await ApiService.CreateOrderAsync(order);
+
+        if (success)
+        {
+            Console.WriteLine("Order placed successfully.");
+            // Navigate to the Orders page
+            NavigationManager.NavigateTo("/orders");
+        }
+        else
+        {
+            Console.WriteLine("Failed to place the order. Please try again.");
+        }
+    }
+
 
 }
