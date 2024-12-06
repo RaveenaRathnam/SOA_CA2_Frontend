@@ -3,6 +3,7 @@
     using System.Net.Http;
     using System.Net.Http.Json;
     using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Http.HttpResults;
     using Microsoft.Extensions.Configuration;
     using SOA_CA2_Frontend.Components.Pages;
     using SOA_CA2_Frontend.Models;
@@ -269,7 +270,7 @@
             return new List<CartItemModel>(); // Return empty list on failure
 
         }
-        public async Task<bool> RemoveFromCartAsync(int userId, int productId)
+        public async Task<bool> RemoveFromCartAsync(int productId)
         {
             try
             {
@@ -300,10 +301,13 @@
                 return false;
             }
         }
-        public async Task<bool> ClearCartAsync(int userId)
+        public async Task<bool> ClearCartAsync()
         {
             try
             {
+                // Clear existing headers to avoid duplicates or conflicts
+                _httpClient.DefaultRequestHeaders.Clear();
+                _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Apikey", UserApiKey);
                 // Build the URL for clearing the entire cart
                 string requestUrl = $"{_apiBaseUrl}/Cart/{userId}";
 
@@ -327,6 +331,91 @@
                 return false;
             }
         }
+        public async Task<UserModel> GetUserByIdAsync()
+        {
+            try
+            {
+                // Clear existing headers to avoid duplicates or conflicts
+                _httpClient.DefaultRequestHeaders.Clear();
+                _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Apikey", UserApiKey);
+                string requestUrl = $"{_apiBaseUrl}/User/{userId}";
+                var response = await _httpClient.GetAsync(requestUrl);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return await response.Content.ReadFromJsonAsync<UserModel>();
+                }
+                else
+                {
+                    Console.WriteLine($"Failed to fetch user details. StatusCode: {response.StatusCode}");
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while fetching user details: {ex.Message}");
+                return null;
+            }
+        }
+        public async Task<bool> UpdateUserAsync(UserModel user)
+        {
+            try
+            {
+                // Clear existing headers to avoid duplicates or conflicts
+                _httpClient.DefaultRequestHeaders.Clear();
+                _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Apikey", UserApiKey);
+                string requestUrl = $"{_apiBaseUrl}/User/{userId}";
+                var response = await _httpClient.PutAsJsonAsync(requestUrl, user);
+
+                if (response.IsSuccessStatusCode)
+                {
+                     
+                    Console.WriteLine("User details updated successfully.");
+                    return true;
+                }
+                else
+                {
+                    
+                    Console.WriteLine($"Failed to update user details. StatusCode: {response.StatusCode}");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while updating user details: {ex.Message}");
+                return false;
+            }
+        }
+        public async Task<bool> DeleteUserAsync()
+        {
+            try
+            {
+                // Clear existing headers to avoid duplicates or conflicts
+                _httpClient.DefaultRequestHeaders.Clear();
+                _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Apikey", UserApiKey);
+                string requestUrl = $"{_apiBaseUrl}/User/{userId}";
+                var response = await _httpClient.DeleteAsync(requestUrl);
+
+                if (response.IsSuccessStatusCode)
+                {
+                     
+                    Console.WriteLine("User account deleted successfully.");
+                    return true;
+                }
+                else
+                {
+                    
+                    Console.WriteLine($"Failed to delete user account. StatusCode: {response.StatusCode}");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while deleting the user account: {ex.Message}");
+                return false;
+            }
+        }
+
 
     }
 
