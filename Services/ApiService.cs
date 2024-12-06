@@ -14,7 +14,7 @@
         public bool IsLoggedIn { get; private set; } = false;
         public string SuccessMessage { get; set; } = string.Empty;
         public string UserToken { get; private set; } = string.Empty;
-        public string ApiKey { get; private set; } = string.Empty;
+        public string UserApiKey { get; private set; } = string.Empty;
 
         public event Action? OnChange;
 
@@ -34,7 +34,9 @@
                 var responseData = await response.Content.ReadAsStringAsync();
                 var deserializedData = System.Text.Json.JsonSerializer.Deserialize<LoginModel>(responseData);
                 System.Console.WriteLine(deserializedData.jwtToken);
-                UserToken = deserializedData?.jwtToken ?? string.Empty; ;
+                System.Console.WriteLine(deserializedData.apiKey);
+                UserToken = deserializedData?.jwtToken ?? string.Empty; 
+                UserApiKey= deserializedData?.apiKey ?? string.Empty; ;
                 IsLoggedIn = true;
                 System.Console.WriteLine(IsLoggedIn);
                 SuccessMessage = "Login successful! Welcome back!";
@@ -81,7 +83,6 @@
                 var deserielizedData = System.Text.Json.JsonSerializer.Deserialize<RegisterModel>(responseData);
                 System.Console.WriteLine(deserielizedData.apiKey);
                 SuccessMessage = "Registration successful! You can now log in.";
-                ApiKey = deserielizedData?.apiKey ?? string.Empty;
                 NotifyStateChanged();
                 return true;
             }
