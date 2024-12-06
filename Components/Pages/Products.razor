@@ -4,14 +4,42 @@
 
 <link href="/css/Products.css" rel="stylesheet" />
 
+<!-- Search and Filter Section -->
+<div class="search-filter-container">
+    <div class="search-bar">
+        <input type="text" placeholder="Search products..." @bind="searchTerm" />
+        <button class="search-btn" @onclick="ApplyFilters">
+            🔍
+        </button>
+    </div>
+    <div class="filter-bar">
+        <select @bind="selectedGender" @onclick="ApplyFilters">
+            <option value="">All Genders</option>
+            <option value="0">Male</option>
+            <option value="1">Female</option>
+            <option value="2">Unisex</option>
+        </select>
+        <select @bind="selectedCategory" @onclick="ApplyFilters">
+            <option value="">All Categories</option>
+            @foreach (var category in categories)
+            {
+                <option value="@category.category_Id">@category.categoryName</option>
+            }
+        </select>
+        <button class="filter-btn" @onclick="ResetFilters">
+            🔄 Reset
+        </button>
+    </div>
+</div>
+
 <div class="products-container">
-    @if (products.Count == 0)
+    @if (filteredProducts.Count == 0)
     {
-        <p>Loading products...</p>
+        <p>No products found matching the criteria.</p>
     }
     else
     {
-        foreach (var product in products)
+        foreach (var product in filteredProducts)
         {
             <div class="product-card">
                 <div class="product-image-container">
@@ -31,6 +59,7 @@
                 <div class="product-details">
                     <h3>@product.product_Name</h3>
                     <p class="price">$@product.price</p>
+                    <p>@product.genderName</p>
                     <span class="product-category">@product.categoryName</span>
                 </div>
             </div>
@@ -46,11 +75,12 @@
             <button class="close-btn" @onclick="CloseQuickView">×</button>
             <div class="modal-body">
                 <div class="modal-image">
-                    <img src="@selectedProduct.imageUrl" alt="@selectedProduct.product_Name"/>
+                    <img src="@selectedProduct.imageUrl" alt="@selectedProduct.product_Name" />
                 </div>
                 <div class="modal-details">
                     <h3>@selectedProduct.product_Name</h3>
                     <p class="price">$@selectedProduct.price</p>
+                    <p>@selectedProduct.genderName</p>
                     <span class="product-category">@selectedProduct.categoryName</span>
                     <p>@selectedProduct.description</p>
                 </div>
@@ -61,22 +91,33 @@
 
 @code {
     private List<ProductModel> products = new();
+    private List<ProductModel> filteredProducts = new();
+    private List<CategoryModel> categories = new();
     private ProductModel selectedProduct = null;
+
+    private string searchTerm = string.Empty;
+    private string selectedGender = string.Empty;
+    private string selectedCategory = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
+        // Fetch products and categories
         products = await ApiService.GetProductsAsync();
+        categories = await ApiService.GetCategoriesAsync();
 
+        // Map category names for products
         foreach (var product in products)
         {
-            product.categoryName = await ApiService.GetCategoryNameByIdAsync(product.category_Id);
+            product.categoryName = categories.FirstOrDefault(c => c.category_Id == product.category_Id)?.categoryName ?? "Unknown";
         }
+
+        // Initialize filtered products to show all by default
+        filteredProducts = new List<ProductModel>(products);
     }
 
     private void AddToCart(ProductModel product)
     {
         // Logic to add product to cart
-         
     }
 
     private void OpenQuickView(ProductModel product)
@@ -87,5 +128,30 @@
     private void CloseQuickView()
     {
         selectedProduct = null;
+    }
+
+    private void ApplyFilters()
+    {
+        // Convert filter values to proper types
+        int? genderFilter = string.IsNullOrEmpty(selectedGender) ? null : int.Parse(selectedGender);
+        int? categoryFilter = string.IsNullOrEmpty(selectedCategory) ? null : int.Parse(selectedCategory);
+
+        // Apply filters and search term
+        filteredProducts = products
+            .Where(p => string.IsNullOrEmpty(searchTerm) || p.product_Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+            .Where(p => !genderFilter.HasValue || p.gender == genderFilter.Value)
+            .Where(p => !categoryFilter.HasValue || p.category_Id == categoryFilter.Value)
+            .ToList();
+    }
+
+    private void ResetFilters()
+    {
+        // Clear all filters
+        searchTerm = string.Empty;
+        selectedGender = string.Empty;
+        selectedCategory = string.Empty;
+
+        // Reset filtered products to show all
+        filteredProducts = new List<ProductModel>(products);
     }
 }
