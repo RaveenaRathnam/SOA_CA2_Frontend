@@ -5,27 +5,35 @@
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Http.HttpResults;
     using Microsoft.Extensions.Configuration;
+    using Microsoft.JSInterop;
+    using ServiceStack;
     using SOA_CA2_Frontend.Components.Pages;
     using SOA_CA2_Frontend.Models;
+
 
     public class ApiService
     {
         private readonly HttpClient _httpClient;
         private readonly string _apiBaseUrl;
+        private readonly IJSRuntime _jsRuntime;
 
-        public bool IsLoggedIn { get; private set; } = false;
+        public bool IsLoggedIn { get; set; } = false;
         public string SuccessMessage { get; set; } = string.Empty;
-        public string UserToken { get; private set; } = string.Empty;
-        public string UserApiKey { get; private set; } = string.Empty;
+        public string UserToken { get; set; } = string.Empty;
+        public string UserApiKey { get; set; } = string.Empty;
+        public int CurrentUserRole { get; private set; } = 0;
 
         public int userId { get; private set; } = 0 ;
+        public bool IsAdmin => CurrentUserRole == 1;  
+        public bool IsUser => CurrentUserRole == 0;  
 
         public event Action? OnChange;
 
-        public ApiService(HttpClient httpClient, IConfiguration configuration)
+        public ApiService(HttpClient httpClient, IConfiguration configuration, IJSRuntime jsRuntime)
         {
             _httpClient = httpClient;
             _apiBaseUrl = configuration["ApiBaseUrl"];
+            _jsRuntime = jsRuntime;
         }
 
         public async Task<bool> LoginAsync(string email, string password)
@@ -43,7 +51,12 @@
                 UserToken = deserializedData?.jwtToken ?? string.Empty; 
                 UserApiKey= deserializedData?.apiKey ?? string.Empty;
                 userId = deserializedData.userId;
+                CurrentUserRole = deserializedData.role; // 0: User, 1: Admin
                 IsLoggedIn = true;
+                // Store token in local storage for persistence
+                await _jsRuntime.InvokeVoidAsync("sessionStorage.setItem", "userToken", UserToken);
+                await _jsRuntime.InvokeVoidAsync("sessionStorage.setItem", "userApiKey", UserApiKey);
+                await _jsRuntime.InvokeVoidAsync("sessionStorage.setItem", "role", CurrentUserRole);
                 System.Console.WriteLine(IsLoggedIn);
                 SuccessMessage = "Login successful! Welcome back!";
                 NotifyStateChanged();
@@ -58,15 +71,29 @@
            
         }
 
-        public void Logout()
+        public async Task LogoutAsync()
         {
             IsLoggedIn = false;
             System.Console.WriteLine(IsLoggedIn);
             UserToken = string.Empty;
             SuccessMessage = string.Empty;
+            // Remove token from local storage on logout
+            await _jsRuntime.InvokeVoidAsync("sessionStorage.removeItem", "userToken");
+            await _jsRuntime.InvokeVoidAsync("sessionStorage.removeItem", "userApiKey");
+            await _jsRuntime.InvokeVoidAsync("sessionStorage.removeItem", "role");
+
             NotifyStateChanged();
            
         }
+
+        public void SetTokenAndLoginStatus(string token, string apiKey, bool isLoggedIn)
+        {
+            UserToken = token;
+            UserApiKey = apiKey;
+            IsLoggedIn = isLoggedIn;
+            NotifyStateChanged(); // Notify any subscribers about the state change
+        }
+
 
         public void NotifyStateChanged() => OnChange?.Invoke();
 
@@ -162,11 +189,7 @@
         {
             try
             {
-                // Clear existing headers to avoid duplicates or conflicts
-                _httpClient.DefaultRequestHeaders.Clear();
-
-                // Add required headers
-                _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Apikey", UserApiKey);
+                SetAuthHeaders();
 
                 // Ensure userId is valid and non-null
                 if (userId==0)
@@ -237,13 +260,11 @@
 
         public async Task<List<CartItemModel>> GetCartItemsAsync()
         {
-             
-                // Clear existing headers to avoid duplicates or conflicts
-                _httpClient.DefaultRequestHeaders.Clear();
-                _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Apikey", UserApiKey);
 
-                // Build the correct endpoint URL
-                string requestUrl = $"{_apiBaseUrl}/Cart/{userId}";
+            SetAuthHeaders();
+
+            // Build the correct endpoint URL
+            string requestUrl = $"{_apiBaseUrl}/Cart/{userId}";
 
                 // Make the GET request to retrieve cart items
                 var response = await _httpClient.GetAsync(requestUrl);
@@ -274,10 +295,7 @@
         {
             try
             {
-                // Clear existing headers to avoid duplicates or conflicts
-                _httpClient.DefaultRequestHeaders.Clear();
-                _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Apikey", UserApiKey);
-
+                SetAuthHeaders();
                 // Build the URL for deleting a specific product from the cart
                 string requestUrl = $"{_apiBaseUrl}/Cart/{userId}/product/{productId}";
 
@@ -305,9 +323,7 @@
         {
             try
             {
-                // Clear existing headers to avoid duplicates or conflicts
-                _httpClient.DefaultRequestHeaders.Clear();
-                _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Apikey", UserApiKey);
+                SetAuthHeaders();
                 // Build the URL for clearing the entire cart
                 string requestUrl = $"{_apiBaseUrl}/Cart/{userId}";
 
@@ -335,9 +351,7 @@
         {
             try
             {
-                // Clear existing headers to avoid duplicates or conflicts
-                _httpClient.DefaultRequestHeaders.Clear();
-                _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Apikey", UserApiKey);
+                SetAuthHeaders();
                 string requestUrl = $"{_apiBaseUrl}/User/{userId}";
                 var response = await _httpClient.GetAsync(requestUrl);
 
@@ -361,9 +375,7 @@
         {
             try
             {
-                // Clear existing headers to avoid duplicates or conflicts
-                _httpClient.DefaultRequestHeaders.Clear();
-                _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Apikey", UserApiKey);
+                SetAuthHeaders();
                 string requestUrl = $"{_apiBaseUrl}/User/{userId}";
                 var response = await _httpClient.PutAsJsonAsync(requestUrl, user);
 
@@ -390,9 +402,7 @@
         {
             try
             {
-                // Clear existing headers to avoid duplicates or conflicts
-                _httpClient.DefaultRequestHeaders.Clear();
-                _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Apikey", UserApiKey);
+                SetAuthHeaders();
                 string requestUrl = $"{_apiBaseUrl}/User/{userId}";
                 var response = await _httpClient.DeleteAsync(requestUrl);
 
@@ -420,9 +430,7 @@
         {
             try
             {
-                // Clear existing headers to avoid duplicates or conflicts
-                _httpClient.DefaultRequestHeaders.Clear();
-                _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Apikey", UserApiKey);
+                SetAuthHeaders();
                 string requestUrl = $"{_apiBaseUrl}/Order/user/{userId}";
                 var response = await _httpClient.GetAsync(requestUrl);
 
@@ -446,9 +454,7 @@
         {
             try
             {
-                // Clear existing headers to avoid duplicates or conflicts
-                _httpClient.DefaultRequestHeaders.Clear();
-                _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Apikey", UserApiKey);
+                SetAuthHeaders();
                 string requestUrl = $"{_apiBaseUrl}/Order";
                 var response = await _httpClient.PostAsJsonAsync(requestUrl, order);
 
@@ -469,7 +475,155 @@
                 return false;
             }
         }
+        public async Task<bool> AddProductAsync(ProductModel product)
+        {
+            try
+            {
+                SetAuthHeaders();
+                string requestUrl = $"{_apiBaseUrl}/Product";
 
+                // Make the POST request
+                var response = await _httpClient.PostAsJsonAsync(requestUrl, product);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("Product added successfully.");
+                    return true;
+                }
+                else
+                {
+                    string responseContent = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"Failed to add product. StatusCode: {response.StatusCode}, Reason: {response.ReasonPhrase}");
+                    Console.WriteLine($"Response Content: {responseContent}");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while adding the product: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> UpdateProductAsync(ProductModel product)
+        {
+            try
+            {
+                SetAuthHeaders();
+
+                // Build the request URL
+                string requestUrl = $"{_apiBaseUrl}/Product/{product.product_Id}";
+
+                // Make the PUT request to update the product
+                var response = await _httpClient.PutAsJsonAsync(requestUrl, product);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("Product updated successfully.");
+                    return true;
+                }
+                else
+                {
+                    string responseContent = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"Failed to update product. StatusCode: {response.StatusCode}, Content: {responseContent}");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while updating the product: {ex.Message}");
+                return false;
+            }
+        }
+
+
+        public async Task<bool> DeleteProductAsync(int productId)
+        {
+            try
+            {
+                SetAuthHeaders();
+                string requestUrl = $"{_apiBaseUrl}/Product/{productId}";
+                // Make the DELETE request
+                var response = await _httpClient.DeleteAsync(requestUrl);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("Product deleted successfully.");
+                    return true;
+                }
+                else
+                {
+                    string responseContent = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"Failed to delete product. StatusCode: {response.StatusCode}, Reason: {response.ReasonPhrase}");
+                    Console.WriteLine($"Response Content: {responseContent}");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while deleting the product: {ex.Message}");
+                return false;
+            }
+        }
+        public async Task<bool> DeleteUserByIdAsync(int userId)
+        {
+            try
+            {
+                SetAuthHeaders();
+                string requestUrl = $"{_apiBaseUrl}/User/{userId}";
+                var response = await _httpClient.DeleteAsync(requestUrl);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("User deleted successfully.");
+                    return true;
+                }
+                else
+                {
+                    string responseContent = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"Failed to delete user. StatusCode: {response.StatusCode}, Content: {responseContent}");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while deleting the user: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<List<UserModel>> GetAllUsersAsync()
+        {
+            try
+            {
+                SetAuthHeaders();
+                string requestUrl = $"{_apiBaseUrl}/User";
+                var response = await _httpClient.GetAsync(requestUrl);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return await response.Content.ReadFromJsonAsync<List<UserModel>>();
+                }
+                else
+                {
+                    string responseContent = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"Failed to fetch users. StatusCode: {response.StatusCode}, Content: {responseContent}");
+                    return new List<UserModel>();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while fetching users: {ex.Message}");
+                return new List<UserModel>();
+            }
+        }
+
+        private void SetAuthHeaders()
+        {
+            _httpClient.DefaultRequestHeaders.Clear();
+            _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Apikey", UserApiKey);
+
+        }
     }
 
 }

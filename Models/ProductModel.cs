@@ -11,7 +11,7 @@ namespace SOA_CA2_Frontend.Models
         public float price { get; set; }
         public int stock { get; set; }
         public string description { get; set; }
-        public int gender { get; set; }
+        public int gender { get; set; } = -1;
         public string imageUrl { get; set; }
         public string categoryName { get; set; }
 
