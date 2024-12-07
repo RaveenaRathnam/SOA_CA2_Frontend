@@ -30,8 +30,9 @@ else
                 <ul>
                     @foreach (var item in order.orderItems)
                     {
-                        <li>
-                            Product ID: @item.product_Id - quantity: @item.quantity - Price: $@item.price
+                        <li class="order-item">
+                            <img src="@item.imageUrl" alt="Product Image" class="product-image" />
+                            quantity: @item.quantity - Price: $@item.price
                         </li>
                     }
                 </ul>
@@ -51,11 +52,25 @@ else
     private async Task LoadOrders()
     {
         orders = await ApiService.GetOrdersByUserIdAsync();
+
+        // Fetch product details (including imageUrl) for each order item
+        foreach (var order in orders)
+        {
+            foreach (var item in order.orderItems)
+            {
+                // Use the product_Id from the item to fetch product details
+                var product = await ApiService.GetProductByIdAsync(item.product_Id);
+                if (product != null)
+                {
+                    item.imageUrl = product.imageUrl; // Assign the image URL to the item
+                }
+            }
+        }
     }
 
     private string GetOrderStatus(int status)
     {
-        // Assuming status is an integer that represents different statuses
+        
         return status switch
         {
             1 => "Pending",
@@ -65,4 +80,5 @@ else
             _ => "Unknown",
         };
     }
+    
 }

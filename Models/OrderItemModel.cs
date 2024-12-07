@@ -7,5 +7,6 @@
             public int product_Id { get; set; }
             public int quantity { get; set; }
             public float price { get; set; }
+            public string imageUrl { get; set; }
     }
 }
