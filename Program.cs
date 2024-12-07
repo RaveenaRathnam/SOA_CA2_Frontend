@@ -9,7 +9,10 @@ namespace SOA_CA2_Frontend
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddHttpClient();
+            builder.Services.AddHttpClient<ApiService>(client =>
+            {
+                client.BaseAddress = new Uri("https://urbancart-backend-c6dje3apguhthzex.canadacentral-01.azurewebsites.net/");
+            });
 
             // Add services to the container..
             builder.Services.AddRazorComponents()
