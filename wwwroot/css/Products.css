@@ -1,0 +1,339 @@
+﻿/* Product Container */
+.products-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    padding: 20px;
+}
+
+/* Product Card */
+.product-card {
+    position: relative;
+    width: 260px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+
+/* Product Image */
+.product-image-container {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    overflow: hidden;
+    background-color: #f9f9f9;
+}
+
+.product-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-image {
+    transform: scale(1.1);
+}
+
+/* Overlay Icons */
+.overlay-icons {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.product-card:hover .overlay-icons {
+    opacity: 1;
+}
+
+.icon-btn {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, background-color 0.3s ease;
+}
+
+    .icon-btn:hover {
+        transform: scale(1.1);
+        background-color: #0398C7;
+        color: #fff;
+    }
+
+/* Product Details */
+.product-details {
+    padding: 15px;
+    text-align: center;
+}
+
+    .product-details .product-category {
+        font-size: 12px;
+        text-transform: uppercase;
+        color: #888;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .product-details h3 {
+        font-size: 18px;
+        margin: 10px 0;
+        font-weight: bold;
+    }
+
+    .product-details .price {
+        font-size: 16px;
+        color: #0398C7;
+        font-weight: bold;
+        margin: 10px 0;
+    }
+
+/* Modal Styling */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    max-width: 800px;
+    width: 100%;
+}
+
+.modal-body {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+}
+
+.modal-image img {
+    width: 300px;
+    height: auto;
+    border-radius: 8px;
+}
+
+.modal-details {
+    flex: 1;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    z-index: 1001;
+    color: black;
+    border-radius: 60%;
+    padding: 5px 10px;
+    transition: transform 0.3s, color 0.3s;
+}
+
+    .close-btn:hover {
+        transform: scale(1.2);
+        color: red;
+    }
+
+/* Product Category */
+.product-category {
+    font-size: 12px;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 8px;
+    display: block;
+}
+
+/* Search and Filter Container */
+.search-filter-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    margin: 30px;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+}
+
+    .search-bar input[type="text"] {
+        width: 100%;
+        max-width: 300px;
+        padding: 10px 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+        outline: none;
+        transition: box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+
+        .search-bar input[type="text"]:focus {
+            border-color: #0398C7;
+            box-shadow: 0 0 5px rgba(3, 152, 199, 0.5);
+        }
+
+.search-btn {
+    padding: 10px 15px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+    .search-btn:hover {
+        background-color: gainsboro;
+        transform: scale(1.05);
+    }
+
+.filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+    .filter-bar select {
+        padding: 10px 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+        cursor: pointer;
+        outline: none;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .filter-bar select:focus {
+            border-color: #0398C7;
+            box-shadow: 0 0 5px rgba(3, 152, 199, 0.5);
+        }
+
+.filter-btn {
+    padding: 10px 15px;
+    color: black;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+    .filter-btn:hover {
+        background-color: #d32f2f;
+        transform: scale(1.05);
+    }
+
+/* Add Product Button */
+.add-btn {
+    display: block;
+    margin: 20px auto;
+    background-color: #0398C7;
+    color: #fff;
+    font-size: 18px;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    font-weight: bold;
+}
+
+    .add-btn:hover {
+        background-color: #0078A6;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .add-btn:active {
+        transform: translateY(0);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+/* Admin Actions: Edit & Delete Buttons */
+.admin-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+/* General Styling for Admin Action Buttons */
+.action-btn {
+    background-color: #0398C7;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
+    font-size: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+    .action-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .action-btn:active {
+        transform: translateY(0);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+/* Specific Styles for Edit Button */
+.edit-btn {
+    background-color: #4CAF50;
+}
+
+    .edit-btn:hover {
+        background-color: #388E3C;
+    }
+
+/* Specific Styles for Delete Button */
+.delete-btn {
+    background-color: #E74C3C;
+}
+
+    .delete-btn:hover {
+        background-color: #C0392B;
+    }

@@ -1,5 +1,214 @@
-﻿<h3>Products</h3>
+﻿@using SOA_CA2_Frontend.Services;
+@inject ApiService ApiService;
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JS
+@using SOA_CA2_Frontend.Models;
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link href="/css/Products.css" rel="stylesheet" />
+
+<!-- Search and Filter Section -->
+<div class="search-filter-container">
+    <div class="search-bar">
+        <input type="text" placeholder="Search products..." @bind="searchTerm" />
+        <button class="search-btn" @onclick="ApplyFilters">
+            🔍
+        </button>
+    </div>
+    <div class="filter-bar">
+        <select @bind="selectedGender" @onclick="ApplyFilters">
+            <option value="">All Genders</option>
+            <option value="0">Male</option>
+            <option value="1">Female</option>
+            <option value="2">Unisex</option>
+        </select>
+        <select @bind="selectedCategory" @onclick="ApplyFilters">
+            <option value="">All Categories</option>
+            @foreach (var category in categories)
+            {
+                <option value="@category.category_Id">@category.categoryName</option>
+            }
+        </select>
+        <button class="filter-btn" @onclick="ResetFilters">
+            🔄 Reset
+        </button>
+    </div>
+</div>
+
+@if (ApiService.IsLoggedIn && ApiService.CurrentUserRole == 1)
+{
+    <button class="add-btn" @onclick="AddProduct">Add Product</button>
+}
+
+<div class="products-container">
+    @if (filteredProducts.Count == 0)
+    {
+        <p>No products found matching the criteria.</p>
+    }
+    else
+    {
+        foreach (var product in filteredProducts)
+        {
+            <div class="product-card">
+                <div class="product-image-container">
+                    <img src="@product.imageUrl" alt="@product.product_Name" class="product-image" />
+                    <div class="overlay-icons">
+                        @if (ApiService.IsLoggedIn && ApiService.CurrentUserRole == 0)
+                        {
+                            <button class="icon-btn" @onclick="() => AddToCart(product)">
+                                🛒
+                            </button>
+                        }
+                        <button class="icon-btn" @onclick="() => OpenQuickView(product)">
+                            👁️
+                        </button>
+                    </div>
+                </div>
+                <div class="product-details">
+                    <h3>@product.product_Name</h3>
+                    <p class="price">$@product.price</p>
+                    <p>@product.genderName</p>
+                    <span class="product-category">@product.categoryName</span>
+                </div>
+                @if (ApiService.IsLoggedIn && ApiService.CurrentUserRole == 1)
+                {
+                    <div class="admin-actions">
+                        <button class="action-btn edit-btn" @onclick="() => EditProduct(product)">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn delete-btn" @onclick="() => DeleteProduct(product.product_Id)">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                }
+            </div>
+        }
+    }
+</div>
+
+<!-- Quick View Modal -->
+@if (selectedProduct != null)
+{
+    <div class="modal-overlay" @onclick="CloseQuickView">
+        <div class="modal-content" @onclick:stopPropagation="true">
+            <button class="close-btn" @onclick="CloseQuickView">×</button>
+            <div class="modal-body">
+                <div class="modal-image">
+                    <img src="@selectedProduct.imageUrl" alt="@selectedProduct.product_Name" />
+                </div>
+                <div class="modal-details">
+                    <h3>@selectedProduct.product_Name</h3>
+                    <p class="price">$@selectedProduct.price</p>
+                    <p>@selectedProduct.genderName</p>
+                    <span class="product-category">@selectedProduct.categoryName</span>
+                    <p>@selectedProduct.description</p>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
 @code {
+    private List<ProductModel> products = new();
+    private List<ProductModel> filteredProducts = new();
+    private List<CategoryModel> categories = new();
+    private ProductModel selectedProduct = null;
 
+    private string searchTerm = string.Empty;
+    private string selectedGender = string.Empty;
+    private string selectedCategory = string.Empty;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Fetch products and categories
+        products = await ApiService.GetProductsAsync();
+        categories = await ApiService.GetCategoriesAsync();
+
+        // Map category names for products
+        foreach (var product in products)
+        {
+            product.categoryName = categories.FirstOrDefault(c => c.category_Id == product.category_Id)?.categoryName ?? "Unknown";
+        }
+
+        // Initialize filtered products to show all by default
+        filteredProducts = new List<ProductModel>(products);
+    }
+
+    private async Task AddToCart(ProductModel product)
+    {
+        var cartItem = new CartItemModel
+        {
+            cartItem_Id = 1,
+            cart_Id = 2,
+            product_Id = product.product_Id,
+            quantity = 1
+        };
+
+        var success = await ApiService.AddToCartAsync(cartItem);
+
+        if (success)
+        {
+            Console.WriteLine($"Added {product.product_Name} to cart.");
+        }
+        else
+        {
+            Console.WriteLine($"Failed to add {product.product_Name} to cart.");
+        }
+    }
+
+    private void OpenQuickView(ProductModel product)
+    {
+        selectedProduct = product;
+    }
+
+    private void CloseQuickView()
+    {
+        selectedProduct = null;
+    }
+
+    private void ApplyFilters()
+    {
+        int? genderFilter = string.IsNullOrEmpty(selectedGender) ? null : int.Parse(selectedGender);
+        int? categoryFilter = string.IsNullOrEmpty(selectedCategory) ? null : int.Parse(selectedCategory);
+
+        filteredProducts = products
+            .Where(p => string.IsNullOrEmpty(searchTerm) || p.product_Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+            .Where(p => !genderFilter.HasValue || p.gender == genderFilter.Value)
+            .Where(p => !categoryFilter.HasValue || p.category_Id == categoryFilter.Value)
+            .ToList();
+    }
+
+    private void ResetFilters()
+    {
+        searchTerm = string.Empty;
+        selectedGender = string.Empty;
+        selectedCategory = string.Empty;
+
+        filteredProducts = new List<ProductModel>(products);
+    }
+
+    private void AddProduct()
+    {
+        NavigationManager.NavigateTo("/admin/products/add");
+    }
+
+    private void EditProduct(ProductModel product)
+    {
+        NavigationManager.NavigateTo($"/admin/products/edit/{product.product_Id}");
+    }
+
+    private async Task DeleteProduct(int productId)
+    {
+        bool success = await ApiService.DeleteProductAsync(productId);
+        if (success)
+        {
+            Console.WriteLine($"Deleted product with ID: {productId}");
+            products = await ApiService.GetProductsAsync();
+            ApplyFilters(); // Refresh the filtered list
+        }
+        else
+        {
+            Console.WriteLine($"Failed to delete product with ID: {productId}");
+        }
+    }
 }

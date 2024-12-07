@@ -1,5 +1,99 @@
-﻿<h3>Customers</h3>
+﻿@page "/profile"
+@inject ApiService ApiService
+@inject NavigationManager NavigationManager
+@using SOA_CA2_Frontend.Models
+@using SOA_CA2_Frontend.Services
+
+<link href="/css/Profile.css" rel="stylesheet" />
+
+<h2 style="text-align:center;">User Profile</h2>
+
+@if (user == null)
+{
+    <p>Loading user details...</p>
+}
+else
+{
+    @if (!string.IsNullOrEmpty(SuccessMessage))
+    {
+        <div class="alert alert-success">
+            @SuccessMessage
+        </div>
+    }
+    <div class="profile-container">
+        <div class="form-group">
+            <label for="first_Name">First Name:</label>
+            <input id="first_Name" type="text" @bind="user.first_Name" />
+        </div>
+        <div class="form-group">
+            <label for="last_Name">Last Name:</label>
+            <input id="last_Name" type="text" @bind="user.last_Name" />
+        </div>
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input id="email" type="email" @bind="user.email" />
+        </div>
+        <div class="form-group">
+            <label for="address">Address:</label>
+            <input id="address" type="text" @bind="user.address" />
+        </div>
+      
+        <button class="update-btn" @onclick="UpdateUser">Update Details</button>
+        <button class="delete-btn" @onclick="DeleteUser">Delete Account</button>
+    </div>
+}
 
 @code {
+    private UserModel user;
+    private string SuccessMessage;
 
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUserDetails();
+    }
+
+    private async Task LoadUserDetails()
+    {
+        user = await ApiService.GetUserByIdAsync();
+        if (user == null)
+        {
+            Console.WriteLine("Failed to load user details.");
+        }
+    }
+
+    private async Task UpdateUser()
+    {
+        bool success = await ApiService.UpdateUserAsync(user);
+
+        if (success)
+        {
+            Console.WriteLine("User details updated successfully.");
+            SuccessMessage = "Your details have been updated successfully.";
+        }
+        else
+        {
+            Console.WriteLine("Failed to update user details.");
+            SuccessMessage = "Failed to update your details. Please try again.";
+        }
+    }
+
+    private async Task DeleteUser()
+    {
+        bool success = await ApiService.DeleteUserAsync();
+
+        if (success)
+        {
+            Console.WriteLine("User account deleted successfully.");
+            
+            await ApiService.LogoutAsync();
+            // Optionally, redirect to a different page after deletion
+            NavigationManager.NavigateTo("/");
+        }
+        else
+        {
+            Console.WriteLine("Failed to delete user account.");
+             
+        }
+    }
 }

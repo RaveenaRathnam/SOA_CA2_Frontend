@@ -1,5 +1,72 @@
-﻿<h3>Login</h3>
+﻿@page "/login"
+@using SOA_CA2_Frontend.Services 
+
+<link href="/css/Form.css" rel="stylesheet" />
+
+@if (!string.IsNullOrEmpty(SuccessMessage))
+{
+    <div class="alert alert-success">
+        @SuccessMessage
+    </div>
+}
+<div class="wrapper" style="background-color:#FBEAE8;">
+    
+    <div class="inner">
+        <form @onsubmit="HandleLogin">
+            <h3>Login</h3>
+            <div class="form-wrapper">
+                <label for="email">Email</label>
+                <input type="text" class="form-control" id="email" @bind="email" />
+            </div>
+            <div class="form-wrapper">
+                <label for="password">Password</label>
+                <input type="password" class="form-control" id="password" @bind="password" />
+            </div>
+            <button type="submit">Login</button>
+            <p style="color:red">@loginError</p>
+            <p>
+                Don't have an account? <a href="/signup">Sign up here</a>.
+            </p>
+        </form>
+    </div>
+</div>
 
 @code {
+    private string email = string.Empty;
+    private string password = string.Empty;
+    private string loginError = string.Empty;
+    private string SuccessMessage => ApiService.SuccessMessage;
 
+    [Inject] private ApiService ApiService { get; set; }
+    [Inject] private NavigationManager NavigationManager { get; set; }
+
+    private async Task HandleLogin()
+    {
+        var isSuccess = await ApiService.LoginAsync(email, password);
+        if (isSuccess)
+        {
+            NavigationManager.NavigateTo("/");
+        }
+        else
+        {
+            loginError = "Invalid email or password. Please try again.";
+        }
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        ApiService.OnChange += StateHasChanged;
+
+        // If there's a success message, set a timer to clear it
+        if (!string.IsNullOrEmpty(SuccessMessage))
+        {
+            await Task.Delay(5000); // Wait for 5 seconds
+            ApiService.SuccessMessage = string.Empty; // Clear the message
+            ApiService.NotifyStateChanged(); // Notify UI to update
+        }
+    }
+
+    public void Dispose()
+    {
+        ApiService.OnChange -= StateHasChanged;
+    }
 }

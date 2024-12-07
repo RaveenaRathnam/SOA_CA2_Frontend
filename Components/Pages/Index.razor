@@ -1,3 +1,50 @@
 ﻿@page "/"
+@using SOA_CA2_Frontend.Services
+@using SOA_CA2_Frontend.Components.Pages
+@inject ApiService ApiService
 
-<h1>Welcome to the e-commerce app!</h1>
+<link href="/css/Index.css" rel="stylesheet" />
+
+<div class="home-container">
+    @if (!string.IsNullOrEmpty(SuccessMessage))
+    {
+        <div class="alert alert-success">
+            @SuccessMessage
+        </div>
+    }
+    <!-- Hero Section -->
+    <div class="hero">
+        <div class="hero-text">
+            <span class="hero-subtitle">Your One-Stop Shop</span>
+            <h1 class="hero-title">Slick. Modern.<br />Everything You Need.</h1>
+            <p class="hero-description">Discover the best products across categories. Exclusive deals just for you!</p>
+            <button class="shop-now-btn">Start Shopping</button>
+        </div>
+        <div class="hero-image">
+            <img src="images/shopping-girl.png" alt="Woman shopping" />
+        </div>
+    </div>
+</div>
+<Products />
+
+@code {
+
+    private string SuccessMessage => ApiService.SuccessMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        ApiService.OnChange += StateHasChanged;
+
+        if (!string.IsNullOrEmpty(SuccessMessage))
+        {
+            await Task.Delay(5000); // Wait for 5 seconds
+            ApiService.SuccessMessage = string.Empty; // Clear the message
+            ApiService.NotifyStateChanged(); // Notify UI to update
+        }
+    }
+
+    public void Dispose()
+    {
+        ApiService.OnChange -= StateHasChanged;
+    }
+}

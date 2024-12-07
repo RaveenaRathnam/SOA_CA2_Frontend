@@ -1,30 +1,73 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">SOA_CA2_Frontend</a>
+﻿@using SOA_CA2_Frontend.Services
+@inject ApiService ApiService
+@inject NavigationManager NavigationManager
+
+<div class="navbar">
+    <div class="navbar-left">
+        <nav>
+            <ul class="navbar-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/contact">Contact</a></li>
+
+                @if (ApiService.IsLoggedIn)
+                {
+                    @if (ApiService.CurrentUserRole == 0)  
+                    {
+                        <li><a href="/orders">My Orders</a></li>
+                    }
+                    else if (ApiService.CurrentUserRole == 1)  
+                    {
+                        <li><a href="/admin/users">Manage Users</a></li>
+                    }
+                }
+            </ul>
+        </nav>
+    </div>
+
+    <div class="navbar-center">
+        <a href="/" class="logo">Urban<span style="color:#0398C7;">Cart</span></a>
+    </div>
+
+    <div class="navbar-right">
+        <nav>
+            <ul class="navbar-links">
+                @if (ApiService.IsLoggedIn)
+                {
+                    @if (ApiService.CurrentUserRole == 0)  
+                    {
+                        <li>
+                            <a href="/cart" class="icon cart">
+                                🛒
+                            </a>
+                        </li>
+                    }
+                    <li><a href="/profile" class="login">PROFILE</a></li>
+                    <li><a @onclick="HandleLogoutAsync" class="logout">LOG OUT</a></li>
+                }
+                else
+                {
+                    <li><a href="/login" class="login">LOG IN</a></li>
+                }
+            </ul>
+        </nav>
     </div>
 </div>
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+@code {
+    protected override void OnInitialized()
+    {
+        ApiService.OnChange += StateHasChanged;
+    }
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
+    private async Task HandleLogoutAsync()
+    {
+        await ApiService.LogoutAsync();
+        NavigationManager.NavigateTo("/", true); // Redirect to Home
+    }
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
-    </nav>
-</div>
-
+    public void Dispose()
+    {
+        ApiService.OnChange -= StateHasChanged;
+    }
+}

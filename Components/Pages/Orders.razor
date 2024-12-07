@@ -1,5 +1,84 @@
-﻿<h3>Orders</h3>
+﻿@page "/orders"
+@inject ApiService ApiService
+@inject NavigationManager NavigationManager
+@using SOA_CA2_Frontend.Models
+@using SOA_CA2_Frontend.Services
+
+<link href="/css/Orders.css" rel="stylesheet" />
+
+<h2 style="text-align:center">My Orders</h2>
+
+@if (orders == null)
+{
+    <p>Loading orders...</p>
+}
+else if (orders.Count == 0)
+{
+    <p>You have not placed any orders yet.</p>
+}
+else
+{
+    <div class="orders-container">
+        @foreach (var order in orders)
+        {
+            <div class="order">
+                <h3>Order ID: @order.order_Id</h3>
+                <p>Order Date: @order.order_Date.ToString("MM/dd/yyyy HH:mm")</p>
+                <p>Total Amount: $@order.total_Amount</p>
+                <p>Status: @GetOrderStatus(order.status)</p>
+                <h4>Items:</h4>
+                <ul>
+                    @foreach (var item in order.orderItems)
+                    {
+                        <li class="order-item">
+                            <img src="@item.imageUrl" alt="Product Image" class="product-image" />
+                            quantity: @item.quantity - Price: $@item.price
+                        </li>
+                    }
+                </ul>
+            </div>
+        }
+    </div>
+}
 
 @code {
+    private List<OrderModel> orders;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadOrders();
+    }
 
+    private async Task LoadOrders()
+    {
+        orders = await ApiService.GetOrdersByUserIdAsync();
+
+        // Fetch product details (including imageUrl) for each order item
+        foreach (var order in orders)
+        {
+            foreach (var item in order.orderItems)
+            {
+                // Use the product_Id from the item to fetch product details
+                var product = await ApiService.GetProductByIdAsync(item.product_Id);
+                if (product != null)
+                {
+                    item.imageUrl = product.imageUrl; // Assign the image URL to the item
+                }
+            }
+        }
+    }
+
+    private string GetOrderStatus(int status)
+    {
+        
+        return status switch
+        {
+            1 => "Pending",
+            2 => "Shipped",
+            3 => "Delivered",
+            4 => "Cancelled",
+            _ => "Unknown",
+        };
+    }
+    
 }

@@ -1,0 +1,58 @@
+﻿@page "/admin/users"
+@inject ApiService ApiService
+@inject NavigationManager NavigationManager
+@using SOA_CA2_Frontend.Models
+@using SOA_CA2_Frontend.Services
+
+<link href="/css/ViewUsers.css" rel="stylesheet" />
+<div class="users-info" style="padding:70px">
+    <h2 style="text-align:center;">Manage Users</h2>
+
+    @if (users == null)
+    {
+        <p>Loading users...</p>
+    }
+    else
+    {
+        <div class="users-container">
+            @foreach (var user in users)
+            {
+                if (user.user_Id != ApiService.userId)
+                {
+                    <div class="user-item">
+                        <h3>@user.first_Name @user.last_Name</h3>
+                        <p>@user.email</p>
+                        <p>@user.address</p>
+                        <button class="delete-btn" @onclick="() => DeleteUser(user.user_Id)">Delete User</button>
+                    </div>
+                }
+
+            }
+        </div>
+    }
+</div>
+
+
+
+@code {
+    private List<UserModel> users = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        users = await ApiService.GetAllUsersAsync();
+    }
+
+    private async Task DeleteUser(int userId)
+    {
+        bool success = await ApiService.DeleteUserByIdAsync(userId);
+        if (success)
+        {
+            Console.WriteLine($"Deleted user with ID: {userId}");
+            users = await ApiService.GetAllUsersAsync(); // Refresh user list
+        }
+        else
+        {
+            Console.WriteLine($"Failed to delete user with ID: {userId}");
+        }
+    }
+}
