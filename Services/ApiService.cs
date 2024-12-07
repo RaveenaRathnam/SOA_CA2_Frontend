@@ -37,7 +37,7 @@
         {
             var apiService = new ApiService(
                 new HttpClient(),
-                new ConfigurationBuilder().Build(), // Replace with actual configuration injection
+                new ConfigurationBuilder().Build(),  
                 jsRuntime);
 
             apiService.UserToken = token;
@@ -45,7 +45,7 @@
             apiService.CurrentUserRole = role;
             apiService.IsLoggedIn = !string.IsNullOrEmpty(token) && !string.IsNullOrEmpty(apiKey);
 
-            await apiService.StoreSessionDataAsync(); // Persist session in the browser
+            await apiService.StoreSessionDataAsync(); 
             apiService.NotifyStateChanged();
         }
 
@@ -185,7 +185,7 @@
             }
             
 
-            return new List<ProductModel>(); // Return empty list on failure
+            return new List<ProductModel>(); 
         }
 
         public async Task<string> GetCategoryNameByIdAsync(int categoryId)
@@ -196,14 +196,14 @@
                 var responseData = await response.Content.ReadAsStringAsync();
                 System.Console.WriteLine(responseData);
 
-                // Deserialize into the CategoryModel
+                
                 var deserializedData = System.Text.Json.JsonSerializer.Deserialize<CategoryModel>(responseData);
 
-                // Return the CategoryName property
+                
                 return deserializedData?.categoryName ?? "Unknown";
             }
 
-            // Default if the category name can't be fetched
+            
             return "Unknown";
         }
 
@@ -218,7 +218,7 @@
                 System.Console.WriteLine(deserielizedData);
                 return deserielizedData;
             }
-            return new List<CategoryModel>(); // Return empty list if the API call fails
+            return new List<CategoryModel>(); 
         }
 
         public async Task<bool> AddToCartAsync(CartItemModel cartItem)
@@ -227,24 +227,24 @@
             {
                 SetAuthHeaders();
 
-                // Ensure userId is valid and non-null
+                
                 if (userId==0)
                 {
                     Console.WriteLine("Error: User ID is null or empty.");
                     return false;
                 }
 
-                // Build the full endpoint URL
+                
                 string requestUrl = $"{_apiBaseUrl}/Cart/{userId}";
 
-                // Log request details for debugging
+                
                 Console.WriteLine($"Sending POST request to: {requestUrl}");
                 Console.WriteLine($"With API Key: {UserApiKey}");
 
-                // Make the POST request with the cart item
+                
                 var response = await _httpClient.PostAsJsonAsync(requestUrl, cartItem);
 
-                // Handle the response
+                
                 if (response.IsSuccessStatusCode)
                 {
                     Console.WriteLine("Item added to cart successfully.");
@@ -252,7 +252,7 @@
                 }
                 else
                 {
-                    // Log error response for further analysis
+                    
                     string responseContent = await response.Content.ReadAsStringAsync();
                     Console.WriteLine("Failed to add item to cart.");
                     Console.WriteLine($"StatusCode: {response.StatusCode}, Reason: {response.ReasonPhrase}");
@@ -262,7 +262,7 @@
             }
             catch (Exception ex)
             {
-                // Log unexpected exceptions
+                
                 Console.WriteLine($"An error occurred: {ex.Message}");
                 return false;
             }
@@ -271,10 +271,10 @@
         {
             try
             {
-                // Build the endpoint URL
+                
                 string requestUrl = $"{_apiBaseUrl}/Product/{productId}";
 
-                // Make the GET request
+                
                 var response = await _httpClient.GetAsync(requestUrl);
 
                 if (response.IsSuccessStatusCode)
@@ -299,10 +299,10 @@
 
             SetAuthHeaders();
 
-            // Build the correct endpoint URL
+            
             string requestUrl = $"{_apiBaseUrl}/Cart/{userId}";
 
-                // Make the GET request to retrieve cart items
+                
                 var response = await _httpClient.GetAsync(requestUrl);
             try
             {
@@ -324,7 +324,7 @@
             }
 
 
-            return new List<CartItemModel>(); // Return empty list on failure
+            return new List<CartItemModel>(); 
 
         }
         public async Task<bool> RemoveFromCartAsync(int productId)
@@ -332,10 +332,10 @@
             try
             {
                 SetAuthHeaders();
-                // Build the URL for deleting a specific product from the cart
+                
                 string requestUrl = $"{_apiBaseUrl}/Cart/{userId}/product/{productId}";
 
-                // Make the DELETE request
+                
                 var response = await _httpClient.DeleteAsync(requestUrl);
 
                 if (response.IsSuccessStatusCode)
@@ -360,10 +360,10 @@
             try
             {
                 SetAuthHeaders();
-                // Build the URL for clearing the entire cart
+                
                 string requestUrl = $"{_apiBaseUrl}/Cart/{userId}";
 
-                // Make the DELETE request
+               
                 var response = await _httpClient.DeleteAsync(requestUrl);
 
                 if (response.IsSuccessStatusCode)
@@ -547,10 +547,10 @@
             {
                 SetAuthHeaders();
 
-                // Build the request URL
+                
                 string requestUrl = $"{_apiBaseUrl}/Product/{product.product_Id}";
 
-                // Make the PUT request to update the product
+                
                 var response = await _httpClient.PutAsJsonAsync(requestUrl, product);
 
                 if (response.IsSuccessStatusCode)
@@ -579,7 +579,7 @@
             {
                 SetAuthHeaders();
                 string requestUrl = $"{_apiBaseUrl}/Product/{productId}";
-                // Make the DELETE request
+                
                 var response = await _httpClient.DeleteAsync(requestUrl);
 
                 if (response.IsSuccessStatusCode)
