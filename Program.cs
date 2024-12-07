@@ -11,7 +11,7 @@ namespace SOA_CA2_Frontend
 
             builder.Services.AddHttpClient();
 
-            // Add services to the container.
+            // Add services to the container..
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
 
