@@ -1,4 +1,4 @@
-﻿/* CSS Styling for Manage Users Page */
+﻿ 
 
 body {
     font-family: Arial, sans-serif;
@@ -61,8 +61,7 @@ h3 {
     .delete-btn:active {
         transform: scale(0.95);
     }
-
-/* Media Queries for Responsive Design */
+     
 @media (max-width: 600px) {
     .user-item {
         flex-direction: column;

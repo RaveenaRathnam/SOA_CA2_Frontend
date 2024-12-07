@@ -1,4 +1,4 @@
-﻿/* Profile Page Styling */
+﻿
 
 .profile-container {
     max-width: 500px;
@@ -17,7 +17,7 @@ label {
     display: block;
     font-weight: bold;
     margin-bottom: 0.5rem;
-    color: #2c3e50; /* Dark text color for labels */
+    color: #2c3e50;  
 }
 
 input[type="text"],
@@ -30,7 +30,7 @@ input[type="email"] {
 }
 
 .update-btn {
-    background-color: #3498db; /* Blue color for update button */
+    background-color: #3498db; 
     color: #fff;
     border: none;
     padding: 0.75rem 1.5rem;
@@ -41,11 +41,11 @@ input[type="email"] {
 }
 
     .update-btn:hover {
-        background-color: #2980b9; /* Darker blue on hover */
+        background-color: #2980b9;  
     }
 
 .delete-btn {
-    background-color: #e74c3c; /* Red color for delete button to signify danger */
+    background-color: #e74c3c;  
     color: #fff;
     border: none;
     padding: 0.75rem 1.5rem;
@@ -55,5 +55,5 @@ input[type="email"] {
 }
 
     .delete-btn:hover {
-        background-color: #c0392b; /* Darker red on hover */
+        background-color: #c0392b;  
     }

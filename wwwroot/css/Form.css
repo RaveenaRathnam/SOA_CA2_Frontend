@@ -138,10 +138,10 @@ button {
     transition: background-color 0.5s ease, color 0.5s ease;
 }
 
-/* Hover Effect */
+
 button:hover {
-    background: #ff1493; /* Bright pink */
-    color: #ffffff; /* Ensures text stays white */
+    background: #ff1493; 
+    color: #ffffff; 
 }
 
 .checkbox {
