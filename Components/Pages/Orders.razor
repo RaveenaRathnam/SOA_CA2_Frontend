@@ -53,16 +53,16 @@ else
     {
         orders = await ApiService.GetOrdersByUserIdAsync();
 
-        // Fetch product details (including imageUrl) for each order item
+        
         foreach (var order in orders)
         {
             foreach (var item in order.orderItems)
             {
-                // Use the product_Id from the item to fetch product details
+                
                 var product = await ApiService.GetProductByIdAsync(item.product_Id);
                 if (product != null)
                 {
-                    item.imageUrl = product.imageUrl; // Assign the image URL to the item
+                    item.imageUrl = product.imageUrl; 
                 }
             }
         }

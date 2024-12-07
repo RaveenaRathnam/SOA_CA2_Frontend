@@ -102,10 +102,10 @@ else
         // Prepare the order model
         var order = new OrderModel
             {
-                user_Id = currentUserId, // Use userId from the ApiService
+                user_Id = currentUserId, 
                 order_Date = DateTime.Now,
                 total_Amount = cartItems.Sum(item => item.price * item.quantity),
-                status = 1, // Assuming status 1 means "Pending"
+                status = 1, 
                 createdAt = DateTime.Now,
                 orderItems = cartItems.Select(item => new OrderItemModel
                 {
