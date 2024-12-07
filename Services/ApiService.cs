@@ -3,11 +3,8 @@
     using System.Net.Http;
     using System.Net.Http.Json;
     using System.Threading.Tasks;
-    using Microsoft.AspNetCore.Http.HttpResults;
     using Microsoft.Extensions.Configuration;
     using Microsoft.JSInterop;
-    using ServiceStack;
-    using SOA_CA2_Frontend.Components.Pages;
     using SOA_CA2_Frontend.Models;
 
 
@@ -17,15 +14,14 @@
         private readonly string _apiBaseUrl;
         private readonly IJSRuntime _jsRuntime;
 
-        public bool IsLoggedIn { get; set; } = false;
+        public bool IsLoggedIn { get; private set; } = false;
         public string SuccessMessage { get; set; } = string.Empty;
-        public string UserToken { get; set; } = string.Empty;
-        public string UserApiKey { get; set; } = string.Empty;
+        public string UserToken { get; private set; } = string.Empty;
+        public string UserApiKey { get; private set; } = string.Empty;
         public int CurrentUserRole { get; private set; } = 0;
-
-        public int userId { get; private set; } = 0 ;
-        public bool IsAdmin => CurrentUserRole == 1;  
-        public bool IsUser => CurrentUserRole == 0;  
+        public int userId { get; private set; } = 0;
+        public bool IsAdmin => CurrentUserRole == 1;
+        public bool IsUser => CurrentUserRole == 0;
 
         public event Action? OnChange;
 
@@ -34,6 +30,23 @@
             _httpClient = httpClient;
             _apiBaseUrl = configuration["ApiBaseUrl"];
             _jsRuntime = jsRuntime;
+        }
+
+        [JSInvokable]
+        public static async Task SetSessionDetails(string token, string apiKey, int role, IJSRuntime jsRuntime)
+        {
+            var apiService = new ApiService(
+                new HttpClient(),
+                new ConfigurationBuilder().Build(), // Replace with actual configuration injection
+                jsRuntime);
+
+            apiService.UserToken = token;
+            apiService.UserApiKey = apiKey;
+            apiService.CurrentUserRole = role;
+            apiService.IsLoggedIn = !string.IsNullOrEmpty(token) && !string.IsNullOrEmpty(apiKey);
+
+            await apiService.StoreSessionDataAsync(); // Persist session in the browser
+            apiService.NotifyStateChanged();
         }
 
         public async Task<bool> LoginAsync(string email, string password)
@@ -53,10 +66,8 @@
                 userId = deserializedData.userId;
                 CurrentUserRole = deserializedData.role; // 0: User, 1: Admin
                 IsLoggedIn = true;
-                // Store token in local storage for persistence
-                await _jsRuntime.InvokeVoidAsync("sessionStorage.setItem", "userToken", UserToken);
-                await _jsRuntime.InvokeVoidAsync("sessionStorage.setItem", "userApiKey", UserApiKey);
-                await _jsRuntime.InvokeVoidAsync("sessionStorage.setItem", "role", CurrentUserRole);
+
+                await StoreSessionDataAsync();
                 System.Console.WriteLine(IsLoggedIn);
                 SuccessMessage = "Login successful! Welcome back!";
                 NotifyStateChanged();
@@ -77,22 +88,47 @@
             System.Console.WriteLine(IsLoggedIn);
             UserToken = string.Empty;
             SuccessMessage = string.Empty;
-            // Remove token from local storage on logout
-            await _jsRuntime.InvokeVoidAsync("sessionStorage.removeItem", "userToken");
-            await _jsRuntime.InvokeVoidAsync("sessionStorage.removeItem", "userApiKey");
-            await _jsRuntime.InvokeVoidAsync("sessionStorage.removeItem", "role");
-
+            CurrentUserRole = 0;
+            userId = 0;
+            await ClearSessionDataAsync();
             NotifyStateChanged();
            
         }
 
-        public void SetTokenAndLoginStatus(string token, string apiKey, bool isLoggedIn)
+        public async Task InitializeSessionAsync()
         {
-            UserToken = token;
-            UserApiKey = apiKey;
-            IsLoggedIn = isLoggedIn;
-            NotifyStateChanged(); // Notify any subscribers about the state change
+            UserToken = await _jsRuntime.InvokeAsync<string>("sessionStorage.getItem", "userToken") ?? string.Empty;
+            UserApiKey = await _jsRuntime.InvokeAsync<string>("sessionStorage.getItem", "userApiKey") ?? string.Empty;
+            CurrentUserRole = int.TryParse(await _jsRuntime.InvokeAsync<string>("sessionStorage.getItem", "role"), out var role) ? role : 0;
+            userId = int.TryParse(await _jsRuntime.InvokeAsync<string>("sessionStorage.getItem", "userId"), out var id) ? id : 0;
+
+            IsLoggedIn = !string.IsNullOrEmpty(UserToken) && !string.IsNullOrEmpty(UserApiKey);
+            NotifyStateChanged();
         }
+
+        private async Task StoreSessionDataAsync()
+        {
+            await _jsRuntime.InvokeVoidAsync("sessionStorage.setItem", "userToken", UserToken);
+            await _jsRuntime.InvokeVoidAsync("sessionStorage.setItem", "userApiKey", UserApiKey);
+            await _jsRuntime.InvokeVoidAsync("sessionStorage.setItem", "role", CurrentUserRole);
+            await _jsRuntime.InvokeVoidAsync("sessionStorage.setItem", "userId", userId);
+        }
+
+        private async Task ClearSessionDataAsync()
+        {
+            await _jsRuntime.InvokeVoidAsync("sessionStorage.removeItem", "userToken");
+            await _jsRuntime.InvokeVoidAsync("sessionStorage.removeItem", "userApiKey");
+            await _jsRuntime.InvokeVoidAsync("sessionStorage.removeItem", "role");
+            await _jsRuntime.InvokeVoidAsync("sessionStorage.removeItem", "userId");
+        }
+
+        private void SetAuthHeaders()
+        {
+            _httpClient.DefaultRequestHeaders.Clear();
+            _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", $"Bearer {UserToken}");
+            _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Apikey", UserApiKey);
+        }
+
 
 
         public void NotifyStateChanged() => OnChange?.Invoke();
@@ -618,12 +654,6 @@
             }
         }
 
-        private void SetAuthHeaders()
-        {
-            _httpClient.DefaultRequestHeaders.Clear();
-            _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Apikey", UserApiKey);
-
-        }
     }
 
 }
