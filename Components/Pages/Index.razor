@@ -1,6 +1,8 @@
 ﻿@page "/"
 @using SOA_CA2_Frontend.Services
-@using SOA_CA2_Frontend.Components.Pages;
+@using SOA_CA2_Frontend.Components.Pages
+@inject IJSRuntime JS
+@inject ApiService ApiService
 
 
 <link href="/css/Index.css" rel="stylesheet" />
@@ -27,16 +29,33 @@
 </div>
 <Products />
 
-@code {
-    [Inject] private ApiService ApiService { get; set; }
+@code { 
 
     private string SuccessMessage => ApiService.SuccessMessage;
+    private bool hasInitialized = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Retrieve token from local storage on page initialization
+            var storedToken = await JS.InvokeAsync<string>("sessionStorage.getItem", "userToken");
+            var storedApiKey = await JS.InvokeAsync<string>("sessionStorage.getItem", "userApiKey");
+            var storedRole = await JS.InvokeAsync<string>("sessionStorage.getItem", "role");
+
+            if (!string.IsNullOrEmpty(storedToken) && !string.IsNullOrEmpty(storedApiKey))
+            {
+                ApiService.SetTokenAndLoginStatus(storedToken, storedApiKey, true);
+            }
+
+            StateHasChanged(); // Notify UI to update after retrieving token
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
         ApiService.OnChange += StateHasChanged;
 
-        // If there's a success message, set a timer to clear it
         if (!string.IsNullOrEmpty(SuccessMessage))
         {
             await Task.Delay(5000); // Wait for 5 seconds
@@ -44,6 +63,7 @@
             ApiService.NotifyStateChanged(); // Notify UI to update
         }
     }
+
 
     public void Dispose()
     {

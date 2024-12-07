@@ -86,7 +86,7 @@ else
         {
             Console.WriteLine("User account deleted successfully.");
             
-            ApiService.Logout();
+            await ApiService.LogoutAsync();
             // Optionally, redirect to a different page after deletion
             NavigationManager.NavigateTo("/");
         }

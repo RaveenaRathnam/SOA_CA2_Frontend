@@ -1,7 +1,7 @@
 ﻿@using SOA_CA2_Frontend.Services
 @inject ApiService ApiService
 @inject NavigationManager NavigationManager
- 
+
 <div class="navbar">
     <div class="navbar-left">
         <nav>
@@ -9,51 +9,61 @@
                 <li><a href="/">Home</a></li>
                 <li><a href="/about">About</a></li>
                 <li><a href="/contact">Contact</a></li>
+
                 @if (ApiService.IsLoggedIn)
                 {
-                    <li><a href="/orders">My Orders</a></li>
+                    @if (ApiService.CurrentUserRole == 0)  
+                    {
+                        <li><a href="/orders">My Orders</a></li>
+                    }
+                    else if (ApiService.CurrentUserRole == 1)  
+                    {
+                        <li><a href="/admin/users">Manage Users</a></li>
+                    }
                 }
             </ul>
         </nav>
     </div>
+
     <div class="navbar-center">
         <a href="/" class="logo">Urban<span style="color:#0398C7;">Cart</span></a>
     </div>
+
     <div class="navbar-right">
         <nav>
             <ul class="navbar-links">
-        @if (ApiService.IsLoggedIn)
-        {
-                    <li>
-                        <a href="/cart" class="icon cart">
-                            🛒
-                        </a>
-                    </li>
-                    <li> <a href="/profile" class="login">PROFILE</a></li>
-                    <li><a @onclick="HandleLogout" class="logout">LOG OUT</a></li>
-        }
-        else
-        {
-                    <li>  <a href="/login" class="login">LOG IN</a></li>
-        }
-        
+                @if (ApiService.IsLoggedIn)
+                {
+                    @if (ApiService.CurrentUserRole == 0)  
+                    {
+                        <li>
+                            <a href="/cart" class="icon cart">
+                                🛒
+                            </a>
+                        </li>
+                    }
+                    <li><a href="/profile" class="login">PROFILE</a></li>
+                    <li><a @onclick="HandleLogoutAsync" class="logout">LOG OUT</a></li>
+                }
+                else
+                {
+                    <li><a href="/login" class="login">LOG IN</a></li>
+                }
             </ul>
         </nav>
     </div>
 </div>
 
 @code {
-     
-
     protected override void OnInitialized()
     {
         ApiService.OnChange += StateHasChanged;
     }
 
-    private void HandleLogout()
+    private async Task HandleLogoutAsync()
     {
-        ApiService.Logout();
-        NavigationManager.NavigateTo("/");
+        await ApiService.LogoutAsync();
+        NavigationManager.NavigateTo("/", true); // Redirect to Home
     }
 
     public void Dispose()

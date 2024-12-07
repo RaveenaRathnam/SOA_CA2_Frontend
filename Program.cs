@@ -8,6 +8,7 @@ namespace SOA_CA2_Frontend
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
             builder.Services.AddHttpClient();
 
             // Add services to the container.

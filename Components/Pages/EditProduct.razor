@@ -1,0 +1,116 @@
+﻿@page "/admin/products/edit/{productId:int}"
+@using SOA_CA2_Frontend.Models
+@using SOA_CA2_Frontend.Services
+@inject ApiService ApiService
+@inject NavigationManager NavigationManager
+
+<link href="/css/AddUpdateForms.css" rel="stylesheet" />
+
+<h2>Edit Product</h2>
+
+@if (product == null || categories == null)
+{
+    <p>Loading product...</p>
+}
+else
+{
+    <div class="form-container">
+        <div class="form-group">
+            <label for="product_Name">Product Name:</label>
+            <input id="product_Name" type="text" @bind="product.product_Name" />
+        </div>
+        <div class="form-group">
+            <label for="price">Price:</label>
+            <input id="price" type="number" @bind="product.price" />
+        </div>
+        <div class="form-group">
+            <label for="stock">Stock:</label>
+            <input id="stock" type="number" @bind="product.stock" />
+        </div>
+        <div class="form-group">
+            <label for="description">Description:</label>
+            <input id="description" type="text" @bind="product.description" />
+        </div>
+        <div class="form-group">
+            <label for="gender">Gender:</label>
+            <select id="gender" @bind="product.gender" class="form-control">
+                <option value="-1" disabled>Select Gender</option> <!-- Default option -->
+                <option value="0">Male</option>
+                <option value="1">Female</option>
+                <option value="2">Unisex</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="category">Category:</label>
+            <select id="category" @bind="product.category_Id" class="form-control">
+                <option value="0" disabled>Select Category</option> <!-- Default option -->
+                @foreach (var category in categories)
+                {
+                    <option value="@category.category_Id">@category.categoryName</option>
+                }
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="imageUrl">Image URL:</label>
+            <input id="imageUrl" type="text" @bind="product.imageUrl" />
+        </div>
+
+        <button @onclick="UpdateProduct" class="btn btn-primary">Update Product</button>
+    </div>
+}
+
+@code {
+    [Parameter] public int productId { get; set; }
+    private ProductModel product;
+    private List<CategoryModel> categories = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProductAndCategories();
+    }
+
+    private async Task LoadProductAndCategories()
+    {
+        // Load product by ID
+        product = await ApiService.GetProductByIdAsync(productId);
+        if (product == null)
+        {
+            Console.WriteLine("Failed to load product.");
+            return;
+        }
+
+        // Load categories for the category dropdown
+        categories = await ApiService.GetCategoriesAsync();
+        if (categories == null || categories.Count == 0)
+        {
+            Console.WriteLine("Failed to load categories.");
+        }
+    }
+
+    private async Task UpdateProduct()
+    {
+        // Validation
+        if (product.gender == -1)
+        {
+            Console.WriteLine("Error: Please select a gender.");
+            return;
+        }
+
+        if (product.category_Id == 0)
+        {
+            Console.WriteLine("Error: Please select a category.");
+            return;
+        }
+
+        bool success = await ApiService.UpdateProductAsync(product);
+        if (success)
+        {
+            Console.WriteLine("Product updated successfully.");
+            NavigationManager.NavigateTo("/");
+        }
+        else
+        {
+            Console.WriteLine("Failed to update product.");
+        }
+    }
+}

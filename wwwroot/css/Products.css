@@ -129,7 +129,6 @@
     display: flex;
     max-width: 800px;
     width: 100%;
-    
 }
 
 .modal-body {
@@ -151,14 +150,15 @@
 .close-btn {
     position: absolute;
     top: 10px;
-    right: 10px;  
+    right: 10px;
     border: none;
     font-size: 1.5rem;
     cursor: pointer;
-    z-index: 1001;  
+    z-index: 1001;
     color: black;
     border-radius: 60%;
     padding: 5px 10px;
+    transition: transform 0.3s, color 0.3s;
 }
 
     .close-btn:hover {
@@ -166,6 +166,7 @@
         color: red;
     }
 
+/* Product Category */
 .product-category {
     font-size: 12px;
     text-transform: uppercase;
@@ -174,18 +175,19 @@
     display: block;
 }
 
-.search-filter-container{
-    display:flex;
-    align-items:center;
-    justify-content:space-around;
-    margin:30px;
+/* Search and Filter Container */
+.search-filter-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    margin: 30px;
 }
 
 .search-bar {
     display: flex;
     align-items: center;
     gap: 10px;
-    flex: 1; /* Ensures it stretches evenly */
+    flex: 1;
 }
 
     .search-bar input[type="text"] {
@@ -200,8 +202,8 @@
     }
 
         .search-bar input[type="text"]:focus {
-            border-color: #0398C7; /* Highlight border color */
-            box-shadow: 0 0 5px rgba(3, 152, 199, 0.5); /* Light shadow */
+            border-color: #0398C7;
+            box-shadow: 0 0 5px rgba(3, 152, 199, 0.5);
         }
 
 .search-btn {
@@ -215,7 +217,7 @@
 }
 
     .search-btn:hover {
-        background-color:gainsboro;
+        background-color: gainsboro;
         transform: scale(1.05);
     }
 
@@ -254,4 +256,84 @@
     .filter-btn:hover {
         background-color: #d32f2f;
         transform: scale(1.05);
+    }
+
+/* Add Product Button */
+.add-btn {
+    display: block;
+    margin: 20px auto;
+    background-color: #0398C7;
+    color: #fff;
+    font-size: 18px;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    font-weight: bold;
+}
+
+    .add-btn:hover {
+        background-color: #0078A6;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .add-btn:active {
+        transform: translateY(0);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+/* Admin Actions: Edit & Delete Buttons */
+.admin-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+/* General Styling for Admin Action Buttons */
+.action-btn {
+    background-color: #0398C7;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
+    font-size: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+    .action-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .action-btn:active {
+        transform: translateY(0);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+/* Specific Styles for Edit Button */
+.edit-btn {
+    background-color: #4CAF50;
+}
+
+    .edit-btn:hover {
+        background-color: #388E3C;
+    }
+
+/* Specific Styles for Delete Button */
+.delete-btn {
+    background-color: #E74C3C;
+}
+
+    .delete-btn:hover {
+        background-color: #C0392B;
     }

@@ -7,6 +7,8 @@
         public string apiKey { get; set; }
 
         public int userId { get; set; }
+        public int role { get; set; }
+
     }
 
 }
