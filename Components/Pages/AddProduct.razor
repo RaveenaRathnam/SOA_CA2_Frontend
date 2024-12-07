@@ -28,7 +28,7 @@
     <div class="form-group">
         <label for="gender">Gender:</label>
         <select id="gender" @bind="product.gender" class="form-control">
-            <option value="-1" disabled>Select Gender</option> <!-- Default option -->
+            <option value="-1" disabled>Select Gender</option>  
             <option value="0">Male</option>
             <option value="1">Female</option>
             <option value="2">Unisex</option>
@@ -38,7 +38,7 @@
     <div class="form-group">
         <label for="category">Category:</label>
         <select id="category" @bind="product.category_Id" class="form-control">
-            <option value="0" disabled>Select Category</option> <!-- Default option -->
+            <option value="0" disabled>Select Category</option>  
             @foreach (var category in categories)
             {
                 <option value="@category.category_Id">@category.categoryName</option>
@@ -60,13 +60,13 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // Load categories for the category dropdown
+         
         categories = await ApiService.GetCategoriesAsync();
     }
 
     private async Task Add_Product()
     {
-        // Validation
+         
         if (product.gender == -1)
         {
             Console.WriteLine("Error: Please select a gender.");
