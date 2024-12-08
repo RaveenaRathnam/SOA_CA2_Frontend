@@ -1,6 +1,6 @@
 # UrbanCart - A Modern Online Shopping Platform
 
-<!-- add image -->
+![UrbanCart_Home](https://github.com/RaveenaRathnam/SOA_CA2_Frontend/blob/master/wwwroot/images/UrbanCart_Home.png)
 
 ## Overview
 
